@@ -7,7 +7,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard function</summary>
     
-    import { drain } from "@opennetwork/literal";
+    import { drain } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -19,7 +19,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async function</summary>
     
-    import { asyncDrain } from "@opennetwork/literal";
+    import { asyncDrain } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -33,7 +33,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard extended iterable</summary>
     
-    import { extendedIterable } from "@opennetwork/literal";
+    import { extendedIterable } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -45,7 +45,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -63,7 +63,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard function</summary>
     
-    import { every } from "@opennetwork/literal";
+    import { every } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -75,7 +75,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async function</summary>
     
-    import { asyncDrain } from "@opennetwork/literal";
+    import { asyncDrain } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -89,7 +89,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard extended iterable</summary>
     
-    import { extendedIterable } from "@opennetwork/literal";
+    import { extendedIterable } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -101,7 +101,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -119,7 +119,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard function</summary>
     
-    import { except, toArray } from "@opennetwork/literal";
+    import { except, toArray } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -131,7 +131,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async function</summary>
     
-    import { asyncExcept, asyncToArray } from "@opennetwork/literal";
+    import { asyncExcept, asyncToArray } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -145,7 +145,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard extended iterable</summary>
     
-    import { extendedIterable } from "@opennetwork/literal";
+    import { extendedIterable } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -157,7 +157,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -175,7 +175,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard function</summary>
     
-    import { filter, toArray } from "@opennetwork/literal";
+    import { filter, toArray } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -187,7 +187,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async function</summary>
     
-    import { asyncFilter, asyncToArray } from "@opennetwork/literal";
+    import { asyncFilter, asyncToArray } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -201,7 +201,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard extended iterable</summary>
     
-    import { extendedIterable } from "@opennetwork/literal";
+    import { extendedIterable } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -213,7 +213,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -241,7 +241,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard function</summary>
     
-    import { some, toArray } from "@opennetwork/literal";
+    import { some, toArray } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -253,7 +253,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async function</summary>
     
-    import { asyncSome, asyncToArray } from "@opennetwork/literal";
+    import { asyncSome, asyncToArray } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];
@@ -267,7 +267,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Standard extended iterable</summary>
     
-    import { extendedIterable } from "@opennetwork/literal";
+    import { extendedIterable } from "@opennetwork/iterable";
     
     // Iterable<number>
     const iterable = [1, 2, 3];
@@ -279,7 +279,7 @@ Basic functions that can be used to manipulate and utilise iterables
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/iterable";
     
     // AsyncIterableLike<number>
     const iterable = [1, 2, 3];

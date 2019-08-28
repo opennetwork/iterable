@@ -1,15 +1,14 @@
 {
     "compilerOptions": {
-        "module": "es6",
+        "module": "esnext",
         "lib": [
-            "es2018",
-            "dom"
+            "esnext"
         ],
         "types": [
-            "node"
+
         ],
         "esModuleInterop": true,
-        "target": "es6",
+        "target": "esnext",
         "noImplicitAny": true,
         "downlevelIteration": true,
         "moduleResolution": "node",

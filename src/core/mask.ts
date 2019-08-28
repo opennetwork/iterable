@@ -7,11 +7,11 @@ export function *mask<T>(iterable: Iterable<T>, maskIterable: Iterable<boolean>)
     nextMask: IteratorResult<boolean>;
   do {
     next = iterator.next();
+    nextMask = maskIterator.next();
     // If no value, we're done
     if (next.value == undefined) {
       continue;
     }
-    nextMask = maskIterator.next();
     // If mask has a value, we want to ignore
     if (nextMask.value) {
       continue;
@@ -27,11 +27,11 @@ export async function *asyncMask<T>(iterable: AsyncIterableLike<T>, maskIterable
     nextMask: IteratorResult<boolean>;
   do {
     next = await iterator.next();
+    nextMask = await maskIterator.next();
     // If no value, we're done
     if (next.value == undefined) {
       continue;
     }
-    nextMask = await maskIterator.next();
     // If mask has a value, we want to ignore
     if (nextMask.value) {
       continue;

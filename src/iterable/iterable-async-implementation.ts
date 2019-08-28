@@ -12,10 +12,13 @@ import {
   asyncUnion,
   AsyncIterableLike,
   asyncIterable,
-  asyncHasAny
+  asyncHasAny,
+  asyncRetain,
+  arrayRetainer,
+  AsyncRetainer,
+  Retainer
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
-import { arrayRetainer, asyncRetain, AsyncRetainer, Retainer } from "../core/retain";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 

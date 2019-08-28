@@ -1,6 +1,5 @@
 import { ExtendedIterable } from "./iterable";
-import { drain, every, except, filter, FilterFn, hasAny, map, MapFn, reduce, ReduceFn, some, union } from "../core";
-import { arrayRetainer, retain, Retainer } from "../core/retain";
+import { drain, every, except, filter, FilterFn, hasAny, map, MapFn, reduce, ReduceFn, some, union, arrayRetainer, retain, Retainer } from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 

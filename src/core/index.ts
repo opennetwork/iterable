@@ -9,3 +9,4 @@ export * from "./map";
 export * from "./reduce";
 export * from "./some";
 export * from "./union";
+export * from "./retain";

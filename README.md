@@ -1,3 +1,3 @@
 # Iterables
 
-Basic iterable functions that can be used to manipulate
+Basic functions that can be used to manipulate and utilise iterables

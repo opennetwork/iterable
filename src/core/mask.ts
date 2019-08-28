@@ -44,7 +44,4 @@ export function *skip(count: number): Iterable<boolean> {
   for (let remaining = count; remaining > 0; remaining -= 1) {
     yield true;
   }
-  while (true) {
-    yield false;
-  }
 }

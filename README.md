@@ -172,8 +172,6 @@ Basic functions that can be used to manipulate and utilise iterables
 
 ### `filter`
 
-### `except`
-
 <details>
     <summary>Standard function</summary>
     

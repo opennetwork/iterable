@@ -5,11 +5,13 @@ export async function asyncDrain(iterable: AsyncIterableLike<unknown>) {
     return;
   }
   const iterator = asyncIterator(iterable);
-  let next: IteratorResult<unknown>;
+  let next: IteratorResult<unknown>,
+    anyValue: boolean = false;
   do {
     next = await iterator.next();
+    anyValue = anyValue || next.value != undefined;
   } while (next && !next.done);
-  return next.value != undefined;
+  return anyValue;
 }
 
 export function drain(iterable: Iterable<unknown>) {
@@ -17,9 +19,11 @@ export function drain(iterable: Iterable<unknown>) {
     return;
   }
   const iterator = iterable[Symbol.iterator]();
-  let next: IteratorResult<unknown>;
+  let next: IteratorResult<unknown>,
+    anyValue: boolean = false;
   do {
     next = iterator.next();
+    anyValue = anyValue || next.value != undefined;
   } while (next && !next.done);
-  return next.value != undefined;
+  return anyValue;
 }

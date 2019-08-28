@@ -1,5 +1,22 @@
 import { ExtendedIterable } from "./iterable";
-import { drain, every, except, filter, FilterFn, hasAny, map, MapFn, reduce, ReduceFn, some, union, arrayRetainer, retain, Retainer } from "../core";
+import {
+  drain,
+  every,
+  except,
+  filter,
+  FilterFn,
+  hasAny,
+  map,
+  MapFn,
+  reduce,
+  ReduceFn,
+  some,
+  union,
+  arrayRetainer,
+  retain,
+  Retainer,
+  toArray
+} from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
@@ -47,6 +64,10 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   except(fn: FilterFn<T, this, this>): ExtendedIterable<T> {
     return new ExtendedIterableImplementation(except(this, fn, this, this));
+  }
+
+  toArray() {
+    return toArray(this);
   }
 
   [Symbol.iterator]() {

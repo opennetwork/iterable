@@ -17,5 +17,6 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   filter(fn: FilterAsyncFn<T, this, this>): ExtendedAsyncIterable<T>;
   except(fn: FilterAsyncFn<T, this, this>): ExtendedAsyncIterable<T>;
   retain(retainer?: Retainer<T> | AsyncRetainer<T>): ExtendedAsyncIterable<T>;
+  toArray(): Promise<T[]>;
 
 }

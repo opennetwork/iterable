@@ -16,7 +16,7 @@ import {
   asyncRetain,
   arrayRetainer,
   AsyncRetainer,
-  Retainer
+  Retainer, asyncToArray
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 
@@ -75,6 +75,10 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   except(fn: FilterAsyncFn<T, this, this>): ExtendedAsyncIterable<T> {
     const iterable: AsyncIterable<T> = asyncExcept(this, fn, this, this);
     return new ExtendedIterableAsyncImplementation(iterable);
+  }
+
+  toArray() {
+    return asyncToArray(this);
   }
 
   [Symbol.asyncIterator]() {

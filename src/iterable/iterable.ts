@@ -17,5 +17,6 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   filter(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   except(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   retain(retainer?: Retainer<T>): ExtendedIterable<T>;
+  toArray(): T[];
 
 }

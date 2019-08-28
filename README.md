@@ -9,17 +9,20 @@ Basic functions that can be used to manipulate and utilise iterables
     
     import { drain } from "@opennetwork/literal";
     
-    const iterable: Iterable<number> = [1, 2, 3];
-    const result: boolean = drain(iterable);
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = drain(iterable);
     console.log("Had any value", result);
 </details>
 
 <details>
     <summary>Async function</summary>
     
-    import { asyncDrain, AsyncIterableLike } from "@opennetwork/literal";
+    import { asyncDrain } from "@opennetwork/literal";
     
-    const iterable: AsyncIterableLike<number> = [1, 2, 3];
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
     
     (async () => {
         const result: boolean = await asyncDrain(iterable);
@@ -32,20 +35,24 @@ Basic functions that can be used to manipulate and utilise iterables
     
     import { extendedIterable } from "@opennetwork/literal";
     
-    const iterable: Iterable<number> = [1, 2, 3];
-    const result: boolean = extendedIterable(iterable).drain();
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = extendedIterable(iterable).drain();
     console.log("Had any value", result);
 </details>
 
 <details>
     <summary>Async extended iterable</summary>
     
-    import { asyncExtendedIterable, AsyncIterableLike } from "@opennetwork/literal";
+    import { asyncExtendedIterable } from "@opennetwork/literal";
     
-    const iterable: AsyncIterableLike<number> = [1, 2, 3];
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
     
     (async () => {
-        const result: boolean = await asyncExtendedIterable(iterable).drain();
+        // boolean 
+        const result = await asyncExtendedIterable(iterable).drain();
         console.log("Had any value", result);
     })();
     
@@ -53,9 +60,173 @@ Basic functions that can be used to manipulate and utilise iterables
 
 ### `every`
 
+<details>
+    <summary>Standard function</summary>
+    
+    import { every } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = every(iterable, value => value > 0);
+    console.log("Every over 0", result);
+</details>
+
+<details>
+    <summary>Async function</summary>
+    
+    import { asyncDrain } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        const result: boolean = await asyncEvery(iterable, value => Promise.resolve(value > 0));
+        console.log("Every over 0", result);
+    })();
+</details>
+
+<details>
+    <summary>Standard extended iterable</summary>
+    
+    import { extendedIterable } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = extendedIterable(iterable).every(value => value > 0);
+    console.log("Every over 0", result);
+</details>
+
+<details>
+    <summary>Async extended iterable</summary>
+    
+    import { asyncExtendedIterable } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        // boolean 
+        const result = await asyncExtendedIterable(iterable).every(value => Promsie.resolve(value > 0));
+        console.log("Every over 0", result);
+    })();
+    
+</details>
+
 ### `except`
 
+<details>
+    <summary>Standard function</summary>
+    
+    import { except, toArray } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = toArray(except(iterable, value => value > 2));
+    console.log("Except over 2", result);
+</details>
+
+<details>
+    <summary>Async function</summary>
+    
+    import { asyncExcept, asyncToArray } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        const result: boolean = await asyncToArray(asyncExcept(iterable, value => Promise.resolve(value > 2)));
+        console.log("Except over 2", result);
+    })();
+</details>
+
+<details>
+    <summary>Standard extended iterable</summary>
+    
+    import { extendedIterable } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = extendedIterable(iterable).except(value => value > 2).toArray();
+    console.log("Except over 2", result);
+</details>
+
+<details>
+    <summary>Async extended iterable</summary>
+    
+    import { asyncExtendedIterable } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        // ExtendedAsyncIterable 
+        const result = await asyncExtendedIterable(iterable).except(value => Promsie.resolve(value > 2)).toArray();
+        console.log("Except over 2", result);
+    })();
+    
+</details>
+
 ### `filter`
+
+### `except`
+
+<details>
+    <summary>Standard function</summary>
+    
+    import { filter, toArray } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = toArray(filter(iterable, value => value > 2));
+    console.log("Over 2", result);
+</details>
+
+<details>
+    <summary>Async function</summary>
+    
+    import { asyncFilter, asyncToArray } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        const result: boolean = await asyncToArray(asyncFilter(iterable, value => Promise.resolve(value > 2)));
+        console.log("Over 2", result);
+    })();
+</details>
+
+<details>
+    <summary>Standard extended iterable</summary>
+    
+    import { extendedIterable } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = extendedIterable(iterable).filter(value => value > 2).toArray();
+    console.log("Over 2", result);
+</details>
+
+<details>
+    <summary>Async extended iterable</summary>
+    
+    import { asyncExtendedIterable } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        // ExtendedAsyncIterable 
+        const result = await asyncExtendedIterable(iterable).filter(value => Promsie.resolve(value > 2)).toArray();
+        console.log("Over 2", result);
+    })();
+    
+</details>
 
 ### `forEach`
 
@@ -68,6 +239,60 @@ Basic functions that can be used to manipulate and utilise iterables
 ### `retain`
 
 ### `some`
+
+<details>
+    <summary>Standard function</summary>
+    
+    import { some, toArray } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = toArray(some(iterable, value => value > 2));
+    console.log("Any over 2", result);
+</details>
+
+<details>
+    <summary>Async function</summary>
+    
+    import { asyncSome, asyncToArray } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        const result: boolean = await asyncToArray(asyncSome(iterable, value => Promise.resolve(value > 2)));
+        console.log("Any over 2", result);
+    })();
+</details>
+
+<details>
+    <summary>Standard extended iterable</summary>
+    
+    import { extendedIterable } from "@opennetwork/literal";
+    
+    // Iterable<number>
+    const iterable = [1, 2, 3];
+    // boolean
+    const result = extendedIterable(iterable).some(value => value > 2).toArray();
+    console.log("Any over 2", result);
+</details>
+
+<details>
+    <summary>Async extended iterable</summary>
+    
+    import { asyncExtendedIterable } from "@opennetwork/literal";
+    
+    // AsyncIterableLike<number>
+    const iterable = [1, 2, 3];
+    
+    (async () => {
+        // ExtendedAsyncIterable 
+        const result = await asyncExtendedIterable(iterable).some(value => Promsie.resolve(value > 2)).toArray();
+        console.log("Any over 2", result);
+    })();
+    
+</details>
 
 ### `union`
 

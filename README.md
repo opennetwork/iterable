@@ -6,6 +6,7 @@ Basic functions that can be used to manipulate and utilise iterables
 
 <details>
     <summary>Standard function</summary>
+    
     ```ts
     import { drain } from "@opennetwork/literal";
     
@@ -17,6 +18,7 @@ Basic functions that can be used to manipulate and utilise iterables
 
 <details>
     <summary>Async function</summary>
+    
     ```ts
     import { asyncDrain, AsyncIterableLike } from "@opennetwork/literal";
     
@@ -31,6 +33,7 @@ Basic functions that can be used to manipulate and utilise iterables
 
 <details>
     <summary>Standard extended iterable</summary>
+    
     ```ts
     import { extendedIterable } from "@opennetwork/literal";
     
@@ -42,6 +45,7 @@ Basic functions that can be used to manipulate and utilise iterables
 
 <details>
     <summary>Async extended iterable</summary>
+    
     ```ts
     import { asyncExtendedIterable, AsyncIterableLike } from "@opennetwork/literal";
     

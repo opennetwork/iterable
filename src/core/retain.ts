@@ -53,7 +53,7 @@ export function asyncRetain<T>(iterable: AsyncIterableLike<T>, retainer: Retaine
       if (next.value == undefined) {
         continue;
       }
-      retainer.add(next.value);
+      await retainer.add(next.value);
       yield next.value;
     } while (!next.value);
   }

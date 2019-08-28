@@ -15,7 +15,9 @@ import {
   arrayRetainer,
   retain,
   Retainer,
-  toArray
+  toArray,
+  mask,
+  skip
 } from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
@@ -64,6 +66,14 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   except(fn: FilterFn<T, this, this>): ExtendedIterable<T> {
     return new ExtendedIterableImplementation(except(this, fn, this, this));
+  }
+
+  mask(maskIterable: Iterable<boolean>): ExtendedIterable<T> {
+    return new ExtendedIterableImplementation(mask(this, maskIterable));
+  }
+
+  skip(count: number): ExtendedIterable<T> {
+    return this.mask(skip(count));
   }
 
   toArray() {

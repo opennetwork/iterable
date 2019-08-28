@@ -11,3 +11,4 @@ export * from "./some";
 export * from "./union";
 export * from "./retain";
 export * from "./to-array";
+export * from "./mask";

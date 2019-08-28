@@ -16,9 +16,10 @@ import {
   asyncRetain,
   arrayRetainer,
   AsyncRetainer,
-  Retainer, asyncToArray
+  Retainer, asyncToArray, mask, skip, asyncMask
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
+import { ExtendedIterable } from "./iterable";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 
@@ -79,6 +80,14 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
 
   toArray() {
     return asyncToArray(this);
+  }
+
+  mask(maskIterable: Iterable<boolean>): ExtendedAsyncIterable<T> {
+    return new ExtendedIterableAsyncImplementation(asyncMask(this, maskIterable));
+  }
+
+  skip(count: number): ExtendedAsyncIterable<T> {
+    return this.mask(skip(count));
   }
 
   [Symbol.asyncIterator]() {

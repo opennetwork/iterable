@@ -1,7 +1,7 @@
 import {
   MapFn,
   FilterFn,
-  ReduceFn
+  ReduceFn, AsyncIterableLike
 } from "../core";
 import { Retainer } from "../core/retain";
 
@@ -17,6 +17,8 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   filter(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   except(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   retain(retainer?: Retainer<T>): ExtendedIterable<T>;
+  skip(count: number): ExtendedIterable<T>;
+  mask(maskIterable: Iterable<boolean>): ExtendedIterable<T>;
   toArray(): T[];
 
 }

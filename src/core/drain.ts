@@ -9,8 +9,8 @@ export async function asyncDrain(iterable: AsyncIterableLike<unknown>) {
     anyValue: boolean = false;
   do {
     next = await iterator.next();
-    anyValue = anyValue || next.value != undefined;
-  } while (next && !next.done);
+    anyValue = anyValue || !next.done;
+  } while (!next.done);
   return anyValue;
 }
 
@@ -23,7 +23,7 @@ export function drain(iterable: Iterable<unknown>) {
     anyValue: boolean = false;
   do {
     next = iterator.next();
-    anyValue = anyValue || next.value != undefined;
-  } while (next && !next.done);
+    anyValue = anyValue || !next.done;
+  } while (!next.done);
   return anyValue;
 }

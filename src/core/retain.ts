@@ -29,7 +29,7 @@ export function retain<T>(iterable: Iterable<T>, retainer: Retainer<T> = arrayRe
     let next: IteratorResult<T>;
     do {
       next = iterator.next();
-      if (next.value == undefined) {
+      if (next.done) {
         continue;
       }
       retainer.add(next.value);
@@ -50,12 +50,12 @@ export function asyncRetain<T>(iterable: AsyncIterableLike<T>, retainer: Retaine
     let next: IteratorResult<T>;
     do {
       next = await iterator.next();
-      if (next.value == undefined) {
+      if (next.done) {
         continue;
       }
       await retainer.add(next.value);
       yield next.value;
-    } while (!next.value);
+    } while (!next.done);
   }
   return {
     [Symbol.asyncIterator]: generator

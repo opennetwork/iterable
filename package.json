@@ -18,6 +18,7 @@
     "url": "https://github.com/opennetwork/iterable.git"
   },
   "devDependencies": {
+    "@types/node": "^12.7.3",
     "esm": "^3.2.25",
     "tslint": "^5.19.0",
     "typescript": "^3.5.3"

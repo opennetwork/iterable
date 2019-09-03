@@ -23,7 +23,9 @@ import {
   asyncFlatMap,
   FlatMapAsyncFn,
   asyncMaskReversible,
-  take, DistinctEqualAsyncFn, asyncDistinct
+  take, DistinctEqualAsyncFn, asyncDistinct,
+  GroupAsyncFn,
+  asyncGroup
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 
@@ -112,6 +114,15 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
 
   distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T> {
     return new ExtendedIterableAsyncImplementation(asyncDistinct(this, equalityFn));
+  }
+
+  group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>> {
+    return new ExtendedIterableAsyncImplementation(
+      asyncMap(
+        asyncGroup(this, fn, this, this),
+        async iterable => new ExtendedIterableAsyncImplementation(iterable)
+      )
+    );
   }
 
   [Symbol.asyncIterator]() {

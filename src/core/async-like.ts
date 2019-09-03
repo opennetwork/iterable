@@ -22,10 +22,7 @@ export function asyncIterable<T>(value: AsyncIterableLike<T>): AsyncIterable<T> 
 
 export function isAsyncIterable<T>(value: unknown): value is AsyncIterable<T> {
   function isAsyncIterableInstance(value: unknown): value is AsyncIterable<T> {
-    return !!(
-      value &&
-      value.hasOwnProperty(Symbol.asyncIterator)
-    );
+    return !!value;
   }
   return !!(
     isAsyncIterableInstance(value) &&
@@ -35,10 +32,7 @@ export function isAsyncIterable<T>(value: unknown): value is AsyncIterable<T> {
 
 export function isIterable<T>(value: unknown): value is Iterable<T> {
   function isIterableInstance(value: unknown): value is Iterable<T> {
-    return !!(
-      value &&
-      value.hasOwnProperty(Symbol.iterator)
-    );
+    return !!value;
   }
   return !!(
     isIterableInstance(value) &&

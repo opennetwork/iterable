@@ -11,6 +11,6 @@ export function *map<T, O, This, Parent>(iterable: Iterable<T>, callbackFn: MapF
 
 export async function *asyncMap<T, O, This, Parent>(iterable: AsyncIterableLike<T>, callbackFn: MapAsyncFn<T, O, This, Parent>, thisValue?: This, parent?: Parent): AsyncIterable<O> {
   for await (const value of asyncIterable(iterable)) {
-    yield await callbackFn.call(thisValue, value, parent);
+    yield callbackFn.call(thisValue, value, parent);
   }
 }

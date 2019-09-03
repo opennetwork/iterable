@@ -1,17 +1,14 @@
-type DeferredFn<T> = (error: Error | undefined, result: IteratorResult<T> | undefined) => void;
+type DeferredFn = (error: Error | undefined) => void;
 
 export class Pushable<T> implements AsyncIterable<T> {
 
   private values: T[] = [];
-  private deferred: DeferredFn<T>[];
+  private deferred: DeferredFn[] = [];
   private isDone: boolean = false;
 
   push(value: T) {
     this.values.push(value);
-    this.invokeDeferred(undefined, {
-      done: false,
-      value: value
-    });
+    this.invokeDeferred(undefined);
   }
 
   close() {
@@ -26,17 +23,14 @@ export class Pushable<T> implements AsyncIterable<T> {
     if (error) {
       this.invokeDeferred(error);
     } else {
-      this.invokeDeferred(undefined, {
-        done: true,
-        value: undefined
-      });
+      this.invokeDeferred(undefined);
     }
   }
 
-  private invokeDeferred(error: Error | undefined, result?: IteratorResult<T>) {
-    let fn: DeferredFn<T>;
+  private invokeDeferred(error: Error | undefined) {
+    let fn: DeferredFn;
     while (fn = this.deferred.shift()) {
-      fn(error, result);
+      fn(error);
     }
   }
 
@@ -44,27 +38,30 @@ export class Pushable<T> implements AsyncIterable<T> {
     for (const value of this.values) {
       yield value;
     }
-    if (this.isDone) {
-      return;
-    }
-    const deferred = this.deferred;
+    let index: number = this.values.length;
+    console.log("Starting loop");
+    const that = this;
     async function *loop(): AsyncIterable<T> {
-      const result: IteratorResult<T> | undefined = await new Promise((resolve, reject) => {
-        deferred.push((error, result) => {
-          if (error) {
-            return reject(error);
-          }
-          resolve(result);
-        });
-      });
-      if (!result) {
-        // ended
+      if (that.isDone) {
         return;
       }
-      if (result.done) {
-        return;
+      // Catch up
+      if (that.values.length !== index) {
+        while (index < that.values.length) {
+          yield that.values[index];
+          index += 1;
+        }
       }
-      yield result.value;
+      await Promise.race([
+        new Promise((resolve, reject) => {
+          that.deferred.push(error => {
+            if (error) {
+              return reject(error);
+            }
+            resolve();
+          });
+        })
+      ]);
       yield *loop();
     }
     yield* loop();

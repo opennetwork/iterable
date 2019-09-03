@@ -21,7 +21,9 @@ import {
   FlatMapFn,
   flatMap,
   maskReversible,
-  take
+  take,
+  DistinctEqualFn,
+  distinct
 } from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
@@ -92,6 +94,10 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   take(count: number): ExtendedIterable<T> {
     return this.maskReversible(take(count), true);
+  }
+
+  distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T> {
+    return new ExtendedIterableImplementation(distinct(this, equalityFn));
   }
 
   toArray() {

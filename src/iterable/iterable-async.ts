@@ -5,7 +5,7 @@ import {
   ReduceAsyncFn,
   AsyncIterableLike,
   Retainer,
-  AsyncRetainer
+  AsyncRetainer, DistinctEqualAsyncFn
 } from "../core";
 
 export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
@@ -25,6 +25,7 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   take(count: number): ExtendedAsyncIterable<T>;
   mask(maskIterable: AsyncIterableLike<boolean>): ExtendedAsyncIterable<T>;
   maskReversible(maskIterable: AsyncIterableLike<boolean>, reverse?: boolean): ExtendedAsyncIterable<T>;
+  distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T>;
   toArray(): Promise<T[]>;
 
 }

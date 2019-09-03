@@ -23,7 +23,7 @@ import {
   asyncFlatMap,
   FlatMapAsyncFn,
   asyncMaskReversible,
-  take
+  take, DistinctEqualAsyncFn, asyncDistinct
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 
@@ -108,6 +108,10 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
 
   take(count: number): ExtendedAsyncIterable<T> {
     return this.maskReversible(take(count), true);
+  }
+
+  distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T> {
+    return new ExtendedIterableAsyncImplementation(asyncDistinct(this, equalityFn));
   }
 
   [Symbol.asyncIterator]() {

@@ -13,3 +13,4 @@ export * from "./retain";
 export * from "./to-array";
 export * from "./mask";
 export * from "./flat-map";
+export * from "./distinct";

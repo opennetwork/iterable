@@ -1,9 +1,10 @@
 import {
   MapFn,
   FilterFn,
-  ReduceFn, AsyncIterableLike
+  ReduceFn,
+  FlatMapFn,
+  Retainer
 } from "../core";
-import { Retainer } from "../core/retain";
 
 export interface ExtendedIterable<T> extends Iterable<T> {
 
@@ -13,12 +14,15 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   hasAny(): boolean;
   reduce<Accumulator = T>(fn: ReduceFn<T, this, this, Accumulator>, initialValue?: Accumulator): Accumulator;
   map<O>(fn: MapFn<T, O, this, this>): ExtendedIterable<O>;
+  flatMap<O>(fn: FlatMapFn<T, O, this, this>): ExtendedIterable<O>;
   union<O>(other: Iterable<O>): ExtendedIterable<T | O>;
   filter(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   except(fn: FilterFn<T, this, this>): ExtendedIterable<T>;
   retain(retainer?: Retainer<T>): ExtendedIterable<T>;
   skip(count: number): ExtendedIterable<T>;
+  take(count: number): ExtendedIterable<T>;
   mask(maskIterable: Iterable<boolean>): ExtendedIterable<T>;
+  maskReversible(maskIterable: Iterable<boolean>, reverse?: boolean): ExtendedIterable<T>;
   toArray(): T[];
 
 }

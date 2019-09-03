@@ -16,10 +16,16 @@ import {
   asyncRetain,
   arrayRetainer,
   AsyncRetainer,
-  Retainer, asyncToArray, mask, skip, asyncMask
+  Retainer,
+  asyncToArray,
+  skip,
+  asyncMask,
+  asyncFlatMap,
+  FlatMapAsyncFn,
+  asyncMaskReversible,
+  take
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
-import { ExtendedIterable } from "./iterable";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 
@@ -61,6 +67,12 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
     );
   }
 
+  flatMap<O>(fn: FlatMapAsyncFn<T, O, this, this>): ExtendedAsyncIterable<O> {
+    return new ExtendedIterableAsyncImplementation<O>(
+      asyncFlatMap(this, fn, this, this)
+    );
+  }
+
   union<O>(other: AsyncIterableLike<O>): ExtendedAsyncIterable<T | O> {
     return new ExtendedIterableAsyncImplementation(
       asyncUnion(this, other)
@@ -86,8 +98,16 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
     return new ExtendedIterableAsyncImplementation(asyncMask(this, maskIterable));
   }
 
+  maskReversible(maskIterable: Iterable<boolean>, reverse: boolean = false): ExtendedAsyncIterable<T> {
+    return new ExtendedIterableAsyncImplementation(asyncMaskReversible(this, maskIterable, reverse));
+  }
+
   skip(count: number): ExtendedAsyncIterable<T> {
     return this.mask(skip(count));
+  }
+
+  take(count: number): ExtendedAsyncIterable<T> {
+    return this.maskReversible(take(count), true);
   }
 
   [Symbol.asyncIterator]() {

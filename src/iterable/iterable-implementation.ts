@@ -17,7 +17,11 @@ import {
   Retainer,
   toArray,
   mask,
-  skip
+  skip,
+  FlatMapFn,
+  flatMap,
+  maskReversible,
+  take
 } from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
@@ -56,6 +60,12 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     return new ExtendedIterableImplementation(map(this, fn, this, this));
   }
 
+  flatMap<O>(fn: FlatMapFn<T, O, this, this>): ExtendedIterable<O> {
+    return new ExtendedIterableImplementation<O>(
+      flatMap(this, fn, this, this)
+    );
+  }
+
   union<O>(other: Iterable<O>): ExtendedIterable<T | O> {
     return new ExtendedIterableImplementation(union(this, other));
   }
@@ -72,8 +82,16 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     return new ExtendedIterableImplementation(mask(this, maskIterable));
   }
 
+  maskReversible(maskIterable: Iterable<boolean>, reverse: boolean = false): ExtendedIterable<T> {
+    return new ExtendedIterableImplementation(maskReversible(this, maskIterable, reverse));
+  }
+
   skip(count: number): ExtendedIterable<T> {
     return this.mask(skip(count));
+  }
+
+  take(count: number): ExtendedIterable<T> {
+    return this.maskReversible(take(count), true);
   }
 
   toArray() {

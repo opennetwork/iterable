@@ -26,7 +26,7 @@ export class Queue<T = any> implements AsyncIterable<T> {
    * @param value
    * @returns {boolean} false if the value won't be processed
    */
-  next(value: T): boolean {
+  push(value: T): boolean {
     if (!this.open) {
       return false;
     }

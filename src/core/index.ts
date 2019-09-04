@@ -15,4 +15,4 @@ export * from "./mask";
 export * from "./flat-map";
 export * from "./distinct";
 export * from "./group";
-export * from "./pushable";
+export * from "./queue";

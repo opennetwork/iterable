@@ -3,7 +3,7 @@ import {
   FilterFn,
   ReduceFn,
   FlatMapFn,
-  Retainer, DistinctEqualFn
+  Retainer, DistinctEqualFn, GroupFn
 } from "../core";
 
 export interface ExtendedIterable<T> extends Iterable<T> {
@@ -24,6 +24,7 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   mask(maskIterable: Iterable<boolean>): ExtendedIterable<T>;
   maskReversible(maskIterable: Iterable<boolean>, reverse?: boolean): ExtendedIterable<T>;
   distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T>;
+  group(fn: GroupFn<T, this, this>): ExtendedIterable<ExtendedIterable<T>>;
   toArray(): T[];
 
 }

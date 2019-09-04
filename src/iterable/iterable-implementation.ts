@@ -23,8 +23,9 @@ import {
   maskReversible,
   take,
   DistinctEqualFn,
-  distinct
+  distinct, GroupAsyncFn, asyncMap, asyncGroup, group, GroupFn
 } from "../core";
+import { ExtendedAsyncIterable } from "./iterable-async";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
@@ -98,6 +99,15 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T> {
     return new ExtendedIterableImplementation(distinct(this, equalityFn));
+  }
+
+  group(fn: GroupFn<T, this, this>): ExtendedIterable<ExtendedIterable<T>> {
+    return new ExtendedIterableImplementation(
+      map(
+        group(this, fn, this, this),
+        iterable => new ExtendedIterableImplementation(iterable)
+      )
+    );
   }
 
   toArray() {

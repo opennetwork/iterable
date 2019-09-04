@@ -25,6 +25,7 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   maskReversible(maskIterable: Iterable<boolean>, reverse?: boolean): ExtendedIterable<T>;
   distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T>;
   group(fn: GroupFn<T, this, this>): ExtendedIterable<ExtendedIterable<T>>;
+  tap(fn: (value: T) => void): ExtendedIterable<T>;
   toArray(): T[];
 
 }

@@ -18,3 +18,4 @@ export * from "./group";
 export * from "./transient-source";
 export * from "./cancellable";
 export * from "./event-source";
+export * from "./hook";

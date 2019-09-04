@@ -27,6 +27,7 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   maskReversible(maskIterable: AsyncIterableLike<boolean>, reverse?: boolean): ExtendedAsyncIterable<T>;
   distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T>;
   group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>>;
+  tap(fn: (value: T) => void | Promise<void>): ExtendedAsyncIterable<T>;
   toArray(): Promise<T[]>;
 
 }

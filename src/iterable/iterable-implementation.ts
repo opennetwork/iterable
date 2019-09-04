@@ -23,9 +23,11 @@ import {
   maskReversible,
   take,
   DistinctEqualFn,
-  distinct, GroupAsyncFn, asyncMap, asyncGroup, group, GroupFn
+  distinct,
+  group,
+  GroupFn,
+  hooks
 } from "../core";
-import { ExtendedAsyncIterable } from "./iterable-async";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
@@ -107,6 +109,12 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
         group(this, fn, this, this),
         iterable => new ExtendedIterableImplementation(iterable)
       )
+    );
+  }
+
+  tap(fn: (value: T) => void): ExtendedIterable<T> {
+    return new ExtendedIterableImplementation(
+      hooks({ preYield: (value: T) => fn(value) })(this)
     );
   }
 

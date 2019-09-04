@@ -25,7 +25,8 @@ import {
   asyncMaskReversible,
   take, DistinctEqualAsyncFn, asyncDistinct,
   GroupAsyncFn,
-  asyncGroup
+  asyncGroup,
+  asyncHooks
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 
@@ -122,6 +123,12 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
         asyncGroup(this, fn, this, this),
         async iterable => new ExtendedIterableAsyncImplementation(iterable)
       )
+    );
+  }
+
+  tap(fn: (value: T) => void | Promise<void>): ExtendedAsyncIterable<T> {
+    return new ExtendedIterableAsyncImplementation(
+      asyncHooks({ preYield: (value: T) => fn(value) })(this)
     );
   }
 

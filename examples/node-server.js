@@ -2,7 +2,7 @@ import { createServer } from "http";
 import { eventSource, asyncExtendedIterable } from "../dist";
 
 asyncExtendedIterable(
-  eventSource(createServer().listen(3001), () => true, "request", "end", "error", (request, response) => ({ request, response }))
+  eventSource(createServer().listen(3001), (request, response) => ({ request, response }), "request")
 )
   .forEach(({ request, response }) => {
     console.log(request.url);

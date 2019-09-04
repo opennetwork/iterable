@@ -55,8 +55,7 @@ export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, i
               if (baseIterator.return) {
                 await baseIterator.return(value);
               }
-              off(errorEventName, onEnd);
-              off(errorEventName, onError);
+              onOff();
               return { done: true, value: undefined };
             }
           };
@@ -73,6 +72,12 @@ export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, i
   once(errorEventName, onError);
   return target;
 
+  function onOff() {
+    off(eventName, onEvent);
+    off(endEventName, onEnd);
+    off(errorEventName, onError);
+  }
+
   function onEvent(value: unknown) {
     if (!is(value)) {
       // Right now we will ignore any values that do not match what we want
@@ -82,14 +87,12 @@ export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, i
   }
 
   function onEnd() {
-    off(eventName, onEvent);
-    off(errorEventName, onError);
+    onOff();
     target.close();
   }
 
   function onError(error: unknown) {
-    off(eventName, onEvent);
-    off(endEventName, onEnd);
+    onOff();
     target.throw(error);
   }
 }

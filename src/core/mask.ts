@@ -14,16 +14,17 @@ export function *maskReversible<T>(iterable: Iterable<T>, maskIterable: Iterable
   let next: IteratorResult<T>,
     nextMask: IteratorResult<boolean>;
   do {
+    nextMask = maskIterator.next();
+    if (reverse === true && nextMask.done) {
+      break;
+    }
     next = iterator.next();
     if (next.done) {
       break;
     }
-    nextMask = maskIterator.next();
     // if `reverse` is `true` and if `maskIterable` returns `true` then I want the value to be used, if it is `done` then I want to finish
     if (reverse === true && nextMask.value === true) {
       yield next.value;
-    } else if (reverse === true && nextMask.done) {
-      break;
     }
     // if reverse is false and if maskIterable returns `true` then I want the value to be skipped, if it is `done` then I want to finish
     if (reverse === false && nextMask.value !== true) {
@@ -38,13 +39,13 @@ export async function *asyncMaskReversible<T>(iterable: AsyncIterableLike<T>, ma
   let next: IteratorResult<T>,
     nextMask: IteratorResult<boolean>;
   do {
-    next = await iterator.next();
-    if (next.done) {
-      break;
-    }
     nextMask = await maskIterator.next();
     // If we have reversed, then as soon as mask
     if (reverse && nextMask.done) {
+      break;
+    }
+    next = await iterator.next();
+    if (next.done) {
       break;
     }
     // If no value, we're done

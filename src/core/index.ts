@@ -15,4 +15,6 @@ export * from "./mask";
 export * from "./flat-map";
 export * from "./distinct";
 export * from "./group";
-export * from "./queue";
+export * from "./transient-source";
+export * from "./cancellable";
+export * from "./event-source";

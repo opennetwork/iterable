@@ -26,7 +26,7 @@ import {
   take, DistinctEqualAsyncFn, asyncDistinct,
   GroupAsyncFn,
   asyncGroup,
-  asyncHooks
+  asyncHooks, ForEachAsyncFn, forEachAsync
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 
@@ -130,6 +130,10 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
     return new ExtendedIterableAsyncImplementation(
       asyncHooks({ preYield: (value: T) => fn(value) })(this)
     );
+  }
+
+  forEach(fn: ForEachAsyncFn<T, this, this>): Promise<void> {
+    return forEachAsync(this, fn, this, this);
   }
 
   [Symbol.asyncIterator]() {

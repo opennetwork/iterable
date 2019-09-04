@@ -3,7 +3,7 @@ import {
   FilterFn,
   ReduceFn,
   FlatMapFn,
-  Retainer, DistinctEqualFn, GroupFn
+  Retainer, DistinctEqualFn, GroupFn, ForEachFn
 } from "../core";
 
 export interface ExtendedIterable<T> extends Iterable<T> {
@@ -26,6 +26,7 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T>;
   group(fn: GroupFn<T, this, this>): ExtendedIterable<ExtendedIterable<T>>;
   tap(fn: (value: T) => void): ExtendedIterable<T>;
+  forEach(fn: ForEachFn<T, this, this>): void;
   toArray(): T[];
 
 }

@@ -5,9 +5,9 @@ export type ReduceAsyncFn<T, This, Parent, Accumulator> = (this: This, value: T,
 
 export function reduce<T, This, Parent, Accumulator = T>(iterable: Iterable<T>, callbackFn: ReduceFn<T, This, Parent, Accumulator>, initialValue?: Accumulator, thisValue?: This, parent?: Parent): Accumulator {
   let accumulator: Accumulator = initialValue;
-  for (const value of this) {
+  for (const value of iterable) {
     if (accumulator == undefined) {
-      accumulator = value;
+      accumulator = (value as unknown) as Accumulator;
       continue;
     }
     accumulator = callbackFn.call(thisValue, accumulator, value, parent);

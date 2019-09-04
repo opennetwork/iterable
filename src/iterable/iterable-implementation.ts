@@ -26,7 +26,7 @@ import {
   distinct,
   group,
   GroupFn,
-  hooks
+  hooks, ForEachFn, forEach
 } from "../core";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
@@ -116,6 +116,10 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     return new ExtendedIterableImplementation(
       hooks({ preYield: (value: T) => fn(value) })(this)
     );
+  }
+
+  forEach(fn: ForEachFn<T, this, this>): void {
+    forEach(this, fn, this, this);
   }
 
   toArray() {

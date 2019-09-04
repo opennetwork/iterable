@@ -5,7 +5,7 @@ import {
   ReduceAsyncFn,
   AsyncIterableLike,
   Retainer,
-  AsyncRetainer, DistinctEqualAsyncFn, GroupAsyncFn
+  AsyncRetainer, DistinctEqualAsyncFn, GroupAsyncFn, ForEachAsyncFn
 } from "../core";
 
 export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
@@ -28,6 +28,7 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T>;
   group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>>;
   tap(fn: (value: T) => void | Promise<void>): ExtendedAsyncIterable<T>;
+  forEach(fn: ForEachAsyncFn<T, this, this>): Promise<void>;
   toArray(): Promise<T[]>;
 
 }

@@ -23,8 +23,7 @@ function isListenableAdd<T>(listenable: ListenableAdd | ListenableOn): listenabl
   );
 }
 
-export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, is: (value: unknown) => value is T, eventName: string = "data", endEventName: string = "end", errorEventName: string = "error"): TransientAsyncIteratorSource<T> {
-  let target: TransientAsyncIteratorSource<T>;
+export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, map: (...args: any[]) => T, eventName: string = "data", endEventName: string = "end", errorEventName: string = "error"): TransientAsyncIteratorSource<T> {
   const on = (isListenableAdd(listenable) ? listenable.addListener : listenable.on).bind(listenable);
   const off = ((isListenableAdd(listenable) ? listenable.removeListener : listenable.off) || (() => {})).bind(listenable);
   const once = listenable.once ? listenable.once.bind(listenable) : function(eventName: string, handler: (...args: any[]) => void) {
@@ -34,40 +33,8 @@ export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, i
     };
     on(eventName, newHandler);
   };
-  if (isAsyncIterable(listenable)) {
-    function getIterable(baseIterable: AsyncIterable<unknown>): AsyncIterable<T> {
-      return {
-        [Symbol.asyncIterator]: (): AsyncIterator<T> => {
-          const baseIterator = baseIterable[Symbol.asyncIterator]();
-          const iterator = {
-            async next(): Promise<IteratorResult<T>> {
-              const next = await baseIterator.next();
-              if (next.done) {
-                await iterator.return();
-                return { done: true, value: undefined };
-              }
-              if (!is(next.value)) {
-                return;
-              }
-              return { done: false, value: next.value };
-            },
-            async return(value?: any): Promise<IteratorResult<T>> {
-              if (baseIterator.return) {
-                await baseIterator.return(value);
-              }
-              onOff();
-              return { done: true, value: undefined };
-            }
-          };
-          return iterator;
-        }
-      };
-    }
-    target = source(getIterable(listenable));
-  } else {
-    target = new TransientAsyncIteratorSource<T>();
-    on(eventName, onEvent);
-  }
+  const target = new TransientAsyncIteratorSource<T>();
+  on(eventName, onEvent);
   once(endEventName, onEnd);
   once(errorEventName, onError);
   return target;
@@ -78,12 +45,8 @@ export function eventSource<T = any>(listenable: ListenableAdd | ListenableOn, i
     off(errorEventName, onError);
   }
 
-  function onEvent(value: unknown) {
-    if (!is(value)) {
-      // Right now we will ignore any values that do not match what we want
-      return;
-    }
-    target.push(value);
+  function onEvent(...args: any[]) {
+    target.push(map(...args));
   }
 
   function onEnd() {

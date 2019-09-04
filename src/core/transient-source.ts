@@ -13,9 +13,6 @@ export function source<T>(source?: AsyncIterableLike<T> | TransientAsyncIterator
 export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 
   private idGenerator: number = 0;
-  private get maximumIndex() {
-    return this.inFlightValues.length - 1;
-  }
   private indexes: Map<number, number> = new Map();
   private sourceIterator?: AsyncIterator<T>;
   private inFlightValues: T[] = [];
@@ -136,17 +133,16 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   }
 
   private async waitForNext() {
-    await Promise.all([
-      new Promise((resolve, reject) => {
-        this.deferred.push(error => {
-          if (error) {
-            return reject(error);
-          }
-          resolve();
-        });
-      }),
-      this.pull()
-    ]);
+    const promise = new Promise((resolve, reject) => {
+      this.deferred.push(error => {
+        if (error) {
+          return reject(error);
+        }
+        resolve();
+      });
+    });
+    await this.pull();
+    return promise;
   }
 
   private invokeDeferred(error: unknown) {
@@ -180,47 +176,47 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   [Symbol.asyncIterator]() {
     const id = (this.idGenerator += 1);
     // Start at the head
-    this.indexes.set(id, this.maximumIndex + 1);
-    const that = this;
+    this.indexes.set(id, this.inFlightValues.length);
     let returned: boolean = false;
-    return {
-      async next(): Promise<IteratorResult<T>> {
-        if (returned || that.isDone) {
+    const iterator = {
+      next: async (): Promise<IteratorResult<T>> => {
+        if (returned || this.isDone) {
           // Force to always be done
           returned = true;
           return { done: true, value: undefined };
         }
-        if (that.error) {
-          throw that.error;
+        if (this.error) {
+          throw this.error;
         }
         const index = this.indexes.get(id);
-        if (index < that.maximumIndex) {
-          const value = that.inFlightValues[index];
-          that.indexes.set(id, index + 1);
-          that.moveForwardInFlightValues();
-          return { done: false, value };
+        if (index >= this.inFlightValues.length) {
+          await this.waitForNext();
+          return iterator.next();
         }
-        await that.waitForNext();
-        return this.next();
+        const value = this.inFlightValues[index];
+        this.indexes.set(id, index + 1);
+        this.moveForwardInFlightValues();
+        return { done: false, value };
       },
-      async return(): Promise<IteratorResult<T>> {
+      return: async (): Promise<IteratorResult<T>> => {
         returned = true;
         this.indexes.delete(id);
-        that.moveForwardInFlightValues();
+        this.moveForwardInFlightValues();
         return { done: true, value: undefined };
       },
-      async throw(error?: unknown): Promise<IteratorResult<T>> {
+      throw: async (error?: unknown): Promise<IteratorResult<T>> => {
         // Notify that we found an issue
         //
         // If we have no `onThrow` function, but have a sourceIterator, tell the iterator of the issue
-        if (that.onThrow) {
-          const result = await that.onThrow(error);
+        if (this.onThrow) {
+          const result = await this.onThrow(error);
           return result || Promise.reject(error);
-        } else if (that.sourceIterator && that.sourceIterator.throw) {
-          return that.sourceIterator.throw(error);
+        } else if (this.sourceIterator && this.sourceIterator.throw) {
+          return this.sourceIterator.throw(error);
         }
         return Promise.reject(error);
       }
     };
+    return iterator;
   }
 }

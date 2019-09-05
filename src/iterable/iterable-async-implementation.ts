@@ -120,10 +120,10 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   }
 
   group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>> {
-    return new ExtendedIterableAsyncImplementation(
+    return new ExtendedIterableAsyncImplementation<ExtendedAsyncIterable<T>>(
       asyncMap(
         asyncGroup(this, fn, this, this),
-        async iterable => new ExtendedIterableAsyncImplementation(iterable)
+        async iterable => new ExtendedIterableAsyncImplementation<T>(iterable)
       )
     );
   }

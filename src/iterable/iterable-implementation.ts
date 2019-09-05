@@ -106,10 +106,10 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
   }
 
   group(fn: GroupFn<T, this, this>): ExtendedIterable<ExtendedIterable<T>> {
-    return new ExtendedIterableImplementation(
+    return new ExtendedIterableImplementation<ExtendedIterable<T>>(
       map(
         group(this, fn, this, this),
-        iterable => new ExtendedIterableImplementation(iterable)
+        iterable => new ExtendedIterableImplementation<T>(iterable)
       )
     );
   }

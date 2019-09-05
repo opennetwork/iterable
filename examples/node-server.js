@@ -4,9 +4,14 @@ import { eventSource, asyncExtendedIterable } from "../dist";
 asyncExtendedIterable(
   eventSource(createServer().listen(3001), (request, response) => ({ request, response }), "request", "close")
 )
-  .forEach(({ request, response }) => {
-    console.log(request.url);
-    response.end("Hello");
+  .map(({ request, response }) => {
+    return {
+      request,
+      responseWith: value => response.end(value)
+    }
+  })
+  .forEach(event => {
+    event.responseWith("Hello 1");
   })
   .then(() => console.log("Complete"))
   .catch(error => console.error(error));

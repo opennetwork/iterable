@@ -7,6 +7,7 @@ import {
   Retainer,
   AsyncRetainer, DistinctEqualAsyncFn, GroupAsyncFn, ForEachAsyncFn
 } from "../core";
+import { AsyncIterableTuple } from "./iterable-async-tuple";
 
 export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
 
@@ -29,6 +30,7 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>>;
   tap(fn: (value: T) => void | Promise<void>): ExtendedAsyncIterable<T>;
   forEach(fn: ForEachAsyncFn<T, this, this>): Promise<void>;
+  toTuple<S extends number>(size: S): AsyncIterableTuple<T, S>;
   toArray(): Promise<T[]>;
 
 }

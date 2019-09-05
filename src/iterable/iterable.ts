@@ -5,6 +5,7 @@ import {
   FlatMapFn,
   Retainer, DistinctEqualFn, GroupFn, ForEachFn
 } from "../core";
+import { IterableTuple } from "./iterable-tuple";
 
 export interface ExtendedIterable<T> extends Iterable<T> {
 
@@ -28,5 +29,6 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   tap(fn: (value: T) => void): ExtendedIterable<T>;
   forEach(fn: ForEachFn<T, this, this>): void;
   toArray(): T[];
+  toTuple<S extends number>(size: S): IterableTuple<T, S>;
 
 }

@@ -6,6 +6,8 @@ import { AsyncIterableLike } from "../core";
 
 export * from "./iterable";
 export * from "./iterable-async";
+export * from "./iterable-tuple";
+export * from "./iterable-async-tuple";
 
 export function extendedIterable<T>(iterable: Iterable<T>): ExtendedIterable<T> {
   return new ExtendedIterableImplementation(iterable);

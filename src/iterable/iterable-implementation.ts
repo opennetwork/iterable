@@ -28,10 +28,12 @@ import {
   GroupFn,
   hooks, ForEachFn, forEach
 } from "../core";
+import { IterableTuple } from "./iterable-tuple";
+import { ExtendedIterableTupleImplementation } from "./iterable-tuple-implementation";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
-  private readonly iterable: Iterable<T>;
+  protected readonly iterable: Iterable<T>;
 
   constructor(iterable: Iterable<T>) {
     this.iterable = iterable;
@@ -124,6 +126,10 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   toArray() {
     return toArray(this);
+  }
+
+  toTuple<S extends number>(size: S): IterableTuple<T, S> {
+    return new ExtendedIterableTupleImplementation<T, S>(this, size);
   }
 
   [Symbol.iterator]() {

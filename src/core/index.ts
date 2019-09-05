@@ -19,3 +19,6 @@ export * from "./transient-source";
 export * from "./cancellable";
 export * from "./event-source";
 export * from "./hook";
+export * from "./view";
+export * from "./peek";
+export * from "./require";

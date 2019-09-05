@@ -29,6 +29,8 @@ import {
   asyncHooks, ForEachAsyncFn, forEachAsync
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
+import { AsyncIterableTuple } from "./iterable-async-tuple";
+import { ExtendedIterableAsyncTupleImplementation } from "./iterable-async-tuple-implementation";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 
@@ -134,6 +136,10 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
 
   forEach(fn: ForEachAsyncFn<T, this, this>): Promise<void> {
     return forEachAsync(this, fn, this, this);
+  }
+
+  toTuple<S extends number>(size: S): AsyncIterableTuple<T, S> {
+    return new ExtendedIterableAsyncTupleImplementation<T, S>(this, size);
   }
 
   [Symbol.asyncIterator]() {

@@ -31,6 +31,9 @@ export function *maskReversible<T>(iterable: Iterable<T>, maskIterable: Iterable
       yield next.value;
     }
   } while (!next.done);
+  if (iterator.return) {
+    iterator.return();
+  }
 }
 
 export async function *asyncMaskReversible<T>(iterable: AsyncIterableLike<T>, maskIterable: AsyncIterableLike<boolean>, reverse: boolean = false): AsyncIterable<T> {
@@ -55,6 +58,9 @@ export async function *asyncMaskReversible<T>(iterable: AsyncIterableLike<T>, ma
     }
     yield next.value;
   } while (!next.done);
+  if (iterator.return) {
+    await iterator.return();
+  }
 }
 
 export function *skip(count: number): Iterable<boolean> {

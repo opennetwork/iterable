@@ -33,7 +33,7 @@ import { ExtendedIterableTupleImplementation } from "./iterable-tuple-implementa
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
-  protected readonly iterable: Iterable<T>;
+  private readonly iterable: Iterable<T>;
 
   constructor(iterable: Iterable<T>) {
     this.iterable = iterable;

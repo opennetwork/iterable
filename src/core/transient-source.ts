@@ -51,6 +51,11 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     return !(this.isDone || this.error);
   }
 
+  // Allows for querying if anything was _pushed_ to the source
+  get inFlight() {
+    return this.inFlightValues.length > 0;
+  }
+
   /**
    * @param value
    * @returns {boolean} false if the value won't be processed

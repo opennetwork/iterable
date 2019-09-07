@@ -108,6 +108,26 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     return true;
   }
 
+  async setSource(source?: AsyncIterableLike<T>, sourceCancellable?: Cancellable) {
+    const hadSource = this.hasSource;
+    this.source = source;
+    this.sourceCancellable = sourceCancellable;
+    this.sourceIterator = undefined;
+    // If there wasn't a source before, and there is a source now, then pull the next value
+    // to trigger the waiting iterators
+    //
+    // The caller of this function should wait for this to be done in case we run into an issue
+    // The issue will only be from _their source_ rather than one of the deferred functions
+    // as pull invokes `push` rather than invoking the iterators directly
+    //
+    // If someone replaces the source while we're pulling, then we will
+    // be waiting for that source as well, so be aware that this _may_ throw an error from _a separate source_
+    // this is because we loop around when we get a new source
+    if (!hadSource && source && this.deferred.length) {
+      return this.pull();
+    }
+  }
+
   private pull() {
     if (!(this.source || this.sourceIterator)) {
       return;
@@ -115,7 +135,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     if (this.pullPromise) {
       return this.pullPromise;
     }
-    const doPull = async () => {
+    const doPull = async (): Promise<void> => {
       if (isCancelled(this.sourceCancellable)) {
         if (this.sourceIterator && this.sourceIterator.return) {
           // Invoking this method notifies the AsyncIterator object that the caller does not intend to make any more next method calls to the AsyncIterator.
@@ -132,11 +152,17 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
         this.sourceIterator = asyncIterator(this.source);
         this.source = undefined;
       }
-      const next = await this.sourceIterator.next();
-      if (next.done) {
-        this.sourceIterator = undefined;
-      } else {
+      const iterator = this.sourceIterator;
+      const next = await iterator.next();
+      // The source iterator could change while we're in progress
+      // as soon as it has, ignore what you found and move on
+      if (!next.done && this.sourceIterator === iterator) {
         this.push(next.value);
+      } else if (this.sourceIterator !== iterator) {
+        // We have a new source iterator, so lets start again
+        return doPull();
+      } else if (next.done) {
+        this.sourceIterator = undefined;
       }
       this.pullPromise = undefined;
     };
@@ -234,7 +260,16 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 }
 
 export function isTransientAsyncIteratorSource(value: unknown): value is TransientAsyncIteratorSource<any> {
-  function isTransientAsyncIteratorSourceLike(value: unknown): value is AsyncIterable<any> & { open?: unknown, inFlight?: unknown, push?: unknown, close?: unknown, throw?: unknown, hasSource?: unknown } {
+  type Like = AsyncIterable<any> & {
+    open?: unknown,
+    inFlight?: unknown,
+    push?: unknown,
+    close?: unknown,
+    throw?: unknown,
+    hasSource?: unknown,
+    setSource?: unknown
+  };
+  function isTransientAsyncIteratorSourceLike(value: unknown): value is Like {
     return isAsyncIterable(value);
   }
   return (
@@ -244,6 +279,7 @@ export function isTransientAsyncIteratorSource(value: unknown): value is Transie
     typeof value.hasSource === "boolean" &&
     typeof value.push === "function" &&
     typeof value.close === "function" &&
-    typeof value.throw === "function"
+    typeof value.throw === "function" &&
+    typeof value.setSource === "function"
   );
 }

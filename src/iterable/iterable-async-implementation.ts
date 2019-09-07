@@ -23,20 +23,24 @@ import {
   asyncFlatMap,
   FlatMapAsyncFn,
   asyncMaskReversible,
-  take, DistinctEqualAsyncFn, asyncDistinct,
+  take,
+  DistinctEqualAsyncFn,
+  asyncDistinct,
   GroupAsyncFn,
   asyncGroup,
-  asyncHooks, ForEachAsyncFn, forEachAsync
+  asyncHooks,
+  ForEachAsyncFn,
+  forEachAsync
 } from "../core";
 import { ExtendedAsyncIterable } from "./iterable-async";
 import { AsyncIterableTuple } from "./iterable-async-tuple";
-import { ExtendedIterableAsyncTupleImplementation } from "./iterable-async-tuple-implementation";
+import { IterableTypeReferenceMap } from "./reference-map-type";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 
   private readonly iterable: AsyncIterable<T>;
 
-  constructor(iterable: AsyncIterableLike<T>) {
+  constructor(iterable: AsyncIterableLike<T>, protected referenceMap: IterableTypeReferenceMap) {
     this.iterable = asyncIterable(iterable);
   }
 
@@ -61,38 +65,38 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   }
 
   retain(retainer: Retainer<T> | AsyncRetainer<T> = arrayRetainer()) {
-    return new ExtendedIterableAsyncImplementation(
+    return this.referenceMap.asyncExtendedIterable(
       asyncRetain(this, retainer)
     );
   }
 
   map<O>(fn: MapAsyncFn<T, O, this, this>): ExtendedAsyncIterable<O> {
-    return new ExtendedIterableAsyncImplementation<O>(
+    return this.referenceMap.asyncExtendedIterable(
       asyncMap(this, fn, this, this)
     );
   }
 
   flatMap<O>(fn: FlatMapAsyncFn<T, O, this, this>): ExtendedAsyncIterable<O> {
-    return new ExtendedIterableAsyncImplementation<O>(
+    return this.referenceMap.asyncExtendedIterable(
       asyncFlatMap(this, fn, this, this)
     );
   }
 
   union<O>(other: AsyncIterableLike<O>): ExtendedAsyncIterable<T | O> {
-    return new ExtendedIterableAsyncImplementation(
+    return this.referenceMap.asyncExtendedIterable(
       asyncUnion(this, other)
     );
   }
 
   filter(fn: FilterAsyncFn<T, this, this>): ExtendedAsyncIterable<T> {
-    return new ExtendedIterableAsyncImplementation(
+    return this.referenceMap.asyncExtendedIterable(
       asyncFilter(this, fn, this, this)
     );
   }
 
   except(fn: FilterAsyncFn<T, this, this>): ExtendedAsyncIterable<T> {
     const iterable: AsyncIterable<T> = asyncExcept(this, fn, this, this);
-    return new ExtendedIterableAsyncImplementation(iterable);
+    return this.referenceMap.asyncExtendedIterable(iterable);
   }
 
   toArray() {
@@ -100,11 +104,11 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   }
 
   mask(maskIterable: Iterable<boolean>): ExtendedAsyncIterable<T> {
-    return new ExtendedIterableAsyncImplementation(asyncMask(this, maskIterable));
+    return this.referenceMap.asyncExtendedIterable(asyncMask(this, maskIterable));
   }
 
   maskReversible(maskIterable: Iterable<boolean>, reverse: boolean = false): ExtendedAsyncIterable<T> {
-    return new ExtendedIterableAsyncImplementation(asyncMaskReversible(this, maskIterable, reverse));
+    return this.referenceMap.asyncExtendedIterable(asyncMaskReversible(this, maskIterable, reverse));
   }
 
   skip(count: number): ExtendedAsyncIterable<T> {
@@ -116,20 +120,20 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   }
 
   distinct(equalityFn?: DistinctEqualAsyncFn<T>): ExtendedAsyncIterable<T> {
-    return new ExtendedIterableAsyncImplementation(asyncDistinct(this, equalityFn));
+    return this.referenceMap.asyncExtendedIterable(asyncDistinct(this, equalityFn));
   }
 
   group(fn: GroupAsyncFn<T, this, this>): ExtendedAsyncIterable<ExtendedAsyncIterable<T>> {
-    return new ExtendedIterableAsyncImplementation<ExtendedAsyncIterable<T>>(
+    return this.referenceMap.asyncExtendedIterable(
       asyncMap(
         asyncGroup(this, fn, this, this),
-        async iterable => new ExtendedIterableAsyncImplementation<T>(iterable)
+        async iterable => this.referenceMap.asyncExtendedIterable(iterable)
       )
     );
   }
 
   tap(fn: (value: T) => void | Promise<void>): ExtendedAsyncIterable<T> {
-    return new ExtendedIterableAsyncImplementation(
+    return this.referenceMap.asyncExtendedIterable(
       asyncHooks({ preYield: (value: T) => fn(value) })(this)
     );
   }
@@ -139,7 +143,7 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
   }
 
   toTuple<S extends number>(size: S): AsyncIterableTuple<T, S> {
-    return new ExtendedIterableAsyncTupleImplementation<T, S>(this, size);
+    return this.referenceMap.asyncIterableTuple(this, size);
   }
 
   [Symbol.asyncIterator]() {

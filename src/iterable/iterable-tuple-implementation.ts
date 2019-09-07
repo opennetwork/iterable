@@ -5,13 +5,14 @@ import {
 import { IterableTuple } from "./iterable-tuple";
 import { ExtendedIterableImplementation } from "./iterable-implementation";
 import { isTupleArray, TupleArray } from "./tuple";
+import { IterableTypeReferenceMap } from "./reference-map-type";
 
 export class ExtendedIterableTupleImplementation<T, S extends number> extends ExtendedIterableImplementation<T> implements IterableTuple<T, S> {
 
   readonly size: S;
 
-  constructor(iterable: Iterable<T>, size: S) {
-    super(takeMinimum(iterable, size));
+  constructor(iterable: Iterable<T>, size: S, referenceMap: IterableTypeReferenceMap) {
+    super(takeMinimum(iterable, size), referenceMap);
     this.size = size;
   }
 

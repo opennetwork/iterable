@@ -146,6 +146,15 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
     return this.referenceMap.asyncIterableTuple(this, size);
   }
 
+  toIterable() {
+    async function *iterable(iterable: AsyncIterable<T>) {
+      for await (const value of iterable) {
+        yield value;
+      }
+    }
+    return iterable(this.iterable);
+  }
+
   [Symbol.asyncIterator]() {
     return this.iterable[Symbol.asyncIterator]();
   }

@@ -30,5 +30,6 @@ export interface ExtendedIterable<T> extends Iterable<T> {
   forEach(fn: ForEachFn<T, this, this>): void;
   toArray(): T[];
   toTuple<S extends number>(size: S): IterableTuple<T, S>;
+  toIterable(): Iterable<T>;
 
 }

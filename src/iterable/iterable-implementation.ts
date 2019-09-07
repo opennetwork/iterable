@@ -132,6 +132,15 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     return this.referenceMap.iterableTuple(this, size);
   }
 
+  toIterable() {
+    function *iterable(iterable: Iterable<T>) {
+      for (const value of iterable) {
+        yield value;
+      }
+    }
+    return iterable(this.iterable);
+  }
+
   [Symbol.iterator]() {
     return this.iterable[Symbol.iterator]();
   }

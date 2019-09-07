@@ -32,5 +32,6 @@ export interface ExtendedAsyncIterable<T> extends AsyncIterable<T> {
   forEach(fn: ForEachAsyncFn<T, this, this>): Promise<void>;
   toTuple<S extends number>(size: S): AsyncIterableTuple<T, S>;
   toArray(): Promise<T[]>;
+  toIterable(): AsyncIterable<T>;
 
 }

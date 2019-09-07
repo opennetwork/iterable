@@ -6,7 +6,7 @@ export class RequiredError extends Error {
   }
 }
 
-export function *require<T>(iterable: Iterable<T>, count: number): Iterable<T> {
+export function *takeMinimum<T>(iterable: Iterable<T>, count: number): Iterable<T> {
   let next: IteratorResult<T>;
   const iterator = iterable[Symbol.iterator]();
   for (let foundCount = 0; foundCount < 0; foundCount += 1) {
@@ -33,7 +33,7 @@ export function *require<T>(iterable: Iterable<T>, count: number): Iterable<T> {
   }
 }
 
-export async function *asyncRequire<T>(iterable: AsyncIterableLike<T>, count: number): AsyncIterable<T> {
+export async function *asyncTakeMinimum<T>(iterable: AsyncIterableLike<T>, count: number): AsyncIterable<T> {
   let next: IteratorResult<T>;
   const iterator = asyncIterator(iterable);
   for (let foundCount = 0; foundCount < 0; foundCount += 1) {

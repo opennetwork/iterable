@@ -1,7 +1,7 @@
 import {
   AsyncIterableLike,
   asyncToArray,
-  asyncRequire
+  asyncTakeMinimum
 } from "../core";
 import { ExtendedIterableAsyncImplementation } from "./iterable-async-implementation";
 import { AsyncIterableTuple } from "./iterable-async-tuple";
@@ -12,7 +12,7 @@ export class ExtendedIterableAsyncTupleImplementation<T, S extends number> exten
   readonly size: S;
 
   constructor(iterable: AsyncIterableLike<T>, size: S) {
-    super(asyncRequire(iterable, size));
+    super(asyncTakeMinimum(iterable, size));
     this.size = size;
   }
 

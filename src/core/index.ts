@@ -21,4 +21,4 @@ export * from "./event-source";
 export * from "./hook";
 export * from "./view";
 export * from "./peek";
-export * from "./require";
+export * from "./take-minimum";

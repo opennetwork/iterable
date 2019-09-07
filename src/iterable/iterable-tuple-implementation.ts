@@ -1,6 +1,6 @@
 import {
   toArray,
-  require
+  takeMinimum
 } from "../core";
 import { IterableTuple } from "./iterable-tuple";
 import { ExtendedIterableImplementation } from "./iterable-implementation";
@@ -11,7 +11,7 @@ export class ExtendedIterableTupleImplementation<T, S extends number> extends Ex
   readonly size: S;
 
   constructor(iterable: Iterable<T>, size: S) {
-    super(require(iterable, size));
+    super(takeMinimum(iterable, size));
     this.size = size;
   }
 

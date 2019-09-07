@@ -225,3 +225,17 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     return iterator;
   }
 }
+
+export function isTransientAsyncIteratorSource(value: unknown): value is TransientAsyncIteratorSource<any> {
+  function isTransientAsyncIteratorSourceLike(value: unknown): value is AsyncIterable<any> & { open?: unknown, inFlight?: unknown, push?: unknown, close?: unknown, throw?: unknown } {
+    return isAsyncIterable(value);
+  }
+  return (
+    isTransientAsyncIteratorSourceLike(value) &&
+    typeof value.open === "boolean" &&
+    typeof value.inFlight === "boolean" &&
+    typeof value.push === "function" &&
+    typeof value.close === "function" &&
+    typeof value.throw === "function"
+  );
+}

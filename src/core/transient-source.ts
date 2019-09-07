@@ -53,7 +53,14 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 
   // Allows for querying if anything was _pushed_ to the source
   get inFlight() {
-    return this.inFlightValues.length > 0;
+    return this.open && this.inFlightValues.length > 0;
+  }
+
+  get hasSource() {
+    if (!this.open || isCancelled(this.sourceCancellable)) {
+      return false;
+    }
+    return !!(this.source || this.sourceIterator);
   }
 
   /**
@@ -227,13 +234,14 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 }
 
 export function isTransientAsyncIteratorSource(value: unknown): value is TransientAsyncIteratorSource<any> {
-  function isTransientAsyncIteratorSourceLike(value: unknown): value is AsyncIterable<any> & { open?: unknown, inFlight?: unknown, push?: unknown, close?: unknown, throw?: unknown } {
+  function isTransientAsyncIteratorSourceLike(value: unknown): value is AsyncIterable<any> & { open?: unknown, inFlight?: unknown, push?: unknown, close?: unknown, throw?: unknown, hasSource?: unknown } {
     return isAsyncIterable(value);
   }
   return (
     isTransientAsyncIteratorSourceLike(value) &&
     typeof value.open === "boolean" &&
     typeof value.inFlight === "boolean" &&
+    typeof value.hasSource === "boolean" &&
     typeof value.push === "function" &&
     typeof value.close === "function" &&
     typeof value.throw === "function"

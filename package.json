@@ -6,7 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "build": "tsc --declaration && npm run tslint",
+    "build": "tsc --declaration && npm run tslint && node correct-import-extensions.js",
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build"

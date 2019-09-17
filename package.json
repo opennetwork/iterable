@@ -20,6 +20,7 @@
   "devDependencies": {
     "@types/node": "^12.7.3",
     "esm": "^3.2.25",
+    "filehound": "^1.17.3",
     "tslint": "^5.19.0",
     "typescript": "^3.5.3"
   }

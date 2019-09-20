@@ -218,16 +218,16 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     let returned: boolean = false;
     const iterator = {
       next: async (): Promise<IteratorResult<T>> => {
-        if (returned || this.isDone) {
-          // Force to always be done
-          returned = true;
-          return { done: true, value: undefined };
-        }
-        if (this.error) {
-          throw this.error;
-        }
         const index = this.indexes.get(id);
         if (index >= this.inFlightValues.length) {
+          if (returned || this.isDone) {
+            // Force to always be done
+            returned = true;
+            return { done: true, value: undefined };
+          }
+          if (this.error) {
+            throw this.error;
+          }
           await this.waitForNext();
           return iterator.next();
         }

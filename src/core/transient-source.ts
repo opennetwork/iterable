@@ -20,6 +20,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   private isDone: boolean = false;
   private errorValue: unknown = undefined;
   private pullPromise: Promise<void> = undefined;
+  private holding: boolean = false;
 
   constructor(private source?: AsyncIterableLike<T>, private sourceCancellable?: Cancellable, private onThrow?: TransientAsyncIteratorSourceOnThrowFn<T>) {
 
@@ -63,6 +64,10 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     return !!(this.source || this.sourceIterator);
   }
 
+  hold() {
+    this.holding = true;
+  }
+
   /**
    * @param value
    * @returns {boolean} false if the value won't be processed
@@ -71,7 +76,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     if (!this.open) {
       return false;
     }
-    if (!this.indexes.size) {
+    if (!this.indexes.size && !this.holding) {
       // Nothing to do, don't push to in flight because
       // otherwise they'll just be sitting there for no reason
       //

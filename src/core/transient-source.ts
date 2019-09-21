@@ -197,7 +197,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 
   private moveForwardInFlightValues() {
     if (!this.indexes.size) {
-      if (this.inFlightValues.length !== 0) {
+      if (this.inFlightValues.length !== 0 && !this.holding) {
         // No need to hold any values if we have nothing to consume them
         this.inFlightValues = [];
       }

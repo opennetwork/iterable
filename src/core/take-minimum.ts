@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator } from "./async-like";
+import { AsyncIterableLike, asyncIterator } from "../async-like";
 
 export class RequiredError extends Error {
   constructor(public readonly required: number, public readonly received: number) {

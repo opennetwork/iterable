@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export type FilterFn<T, This, Parent> = (this: This, value: T, parent: Parent) => boolean;
 export type FilterAsyncFn<T, This, Parent> = (this: This, value: T, parent: Parent) => boolean | Promise<boolean>;

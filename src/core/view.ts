@@ -1,5 +1,5 @@
 import { arrayRetainer, asyncRetain, retain } from "./retain";
-import { AsyncIterableLike } from "./async-like";
+import { AsyncIterableLike } from "../async-like";
 
 export function view<T>(iterable: Iterable<T>) {
   return {

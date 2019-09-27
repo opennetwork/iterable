@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator } from "../async-like";
+import { AsyncIterableLike, asyncIterator } from "./async-like";
 
 export async function asyncDrain(iterable: AsyncIterableLike<unknown>) {
   if (!iterable) {

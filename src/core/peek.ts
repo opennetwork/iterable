@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator } from "./async-like";
+import { AsyncIterableLike, asyncIterator } from "../async-like";
 
 export function *peek<T>(iterable: Iterable<T>, count: number): Iterable<T> {
   const peekedValues: T[] = [];

@@ -1,4 +1,4 @@
-import { asyncIterable, AsyncIterableLike } from "./async-like";
+import { asyncIterable, AsyncIterableLike } from "../async-like";
 import { AsyncRetainerWithHas, RetainerWithHas, setRetainer } from "./retain";
 
 export type DistinctEqualFn<T> = (left: T, right: T) => boolean;

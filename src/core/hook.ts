@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator } from "./async-like";
+import { AsyncIterableLike, asyncIterator } from "../async-like";
 
 export interface Hooks<T, I extends Iterable<T>, O extends Iterator<T>> {
   preIterator?(iterable: I): void;

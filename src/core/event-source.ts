@@ -1,4 +1,4 @@
-import { isAsyncIterable } from "./async-like";
+import { isAsyncIterable } from "../async-like";
 import { source, TransientAsyncIteratorSource } from "./transient-source";
 
 interface ListenableOn {

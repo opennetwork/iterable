@@ -1,4 +1,4 @@
-import { asyncIterable, AsyncIterableLike, asyncIterator } from "../async-like";
+import { DistinctEqualFn } from "../operations/sync/distinct";
 
 export interface Retainer<T> extends Iterable<T> {
   has?(value: T): boolean;
@@ -7,15 +7,6 @@ export interface Retainer<T> extends Iterable<T> {
 
 export interface RetainerWithHas<T> extends Retainer<T> {
   has(value: T): boolean;
-}
-
-export interface AsyncRetainer<T> extends AsyncIterable<T> {
-  has?(value: T): boolean | Promise<boolean>;
-  add(value: T): void | Promise<void>;
-}
-
-export interface AsyncRetainerWithHas<T> extends AsyncRetainer<T> {
-  has(value: T): boolean | Promise<boolean>;
 }
 
 export function arrayRetainer<T>(has?: (value: T, values: T[]) => boolean): Retainer<T> {
@@ -33,6 +24,27 @@ export function arrayRetainer<T>(has?: (value: T, values: T[]) => boolean): Reta
 
 export function setRetainer<T>(): RetainerWithHas<T> {
   return new Set<T>();
+}
+
+export function distinctRetainer<T>(equalityFn?: DistinctEqualFn<T>): RetainerWithHas<T> {
+  if (!equalityFn) {
+    return setRetainer();
+  }
+  const values: T[] = [];
+  return {
+    has(value) {
+      for (const otherValue of values) {
+        if (equalityFn(otherValue, value)) {
+          return true;
+        }
+      }
+      return false;
+    },
+    add(value) {
+      values.push(value);
+    },
+    [Symbol.iterator]: values[Symbol.iterator].bind(values)
+  };
 }
 
 export function retain<T>(iterable: Iterable<T>, retainer: Retainer<T> = arrayRetainer()): Iterable<T> {
@@ -69,30 +81,5 @@ export function retain<T>(iterable: Iterable<T>, retainer: Retainer<T> = arrayRe
   }
   return {
     [Symbol.iterator]: generator
-  };
-}
-
-export function asyncRetain<T>(iterable: AsyncIterableLike<T>, retainer: Retainer<T> | AsyncRetainer<T> = arrayRetainer()): AsyncIterable<T> {
-  const iterator = asyncIterator(iterable);
-  async function *generator() {
-    for await (const value of asyncIterable(retainer)) {
-      yield value;
-    }
-    let next: IteratorResult<T>;
-    do {
-      next = await iterator.next();
-      if (next.done) {
-        continue;
-      }
-      // See explanation @ sync version of retain
-      if (retainer.has && await retainer.has(next.value)) {
-        continue;
-      }
-      await retainer.add(next.value);
-      yield next.value;
-    } while (!next.done);
-  }
-  return {
-    [Symbol.asyncIterator]: generator
   };
 }

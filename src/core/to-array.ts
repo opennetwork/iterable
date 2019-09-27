@@ -1,4 +1,4 @@
-import { asyncIterable, AsyncIterableLike } from "./async-like";
+import { asyncIterable, AsyncIterableLike } from "../async-like";
 
 export function toArray<T>(iterable: Iterable<T>): T[] {
   return Array.from(iterable);

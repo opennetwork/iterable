@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator, isAsyncIterable, isIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterator, isAsyncIterable, isIterable } from "../async-like";
 import { isCancelled, Cancellable } from "./cancellable";
 import { WeakLinkedList } from "@opennetwork/linked-list";
 

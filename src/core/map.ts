@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export type MapFn<T, O, This, Parent> = (this: This, value: T, parent: Parent) => O;
 export type MapAsyncFn<T, O, This, Parent> = (this: This, value: T, parent: Parent) => Promise<O> | O;

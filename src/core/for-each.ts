@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export type ForEachFn<T, This, Parent> = (this: This, value: T, parent: Parent) => void;
 export type ForEachAsyncFn<T, This, Parent> = (this: This, value: T, parent: Parent) => void | Promise<void>;

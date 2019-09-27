@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export type FlatMapFn<T, O, This, Parent> = (this: This, value: T, parent: Parent) => Iterable<O>;
 export type FlatMapAsyncFn<T, O, This, Parent> = (this: This, value: T, parent: Parent) => Promise<AsyncIterableLike<O>> | AsyncIterableLike<O>;

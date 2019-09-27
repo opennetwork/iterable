@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterator } from "./async-like";
+import { AsyncIterableLike, asyncIterator } from "../async-like";
 
 export type GroupFn<T, This, Parent> = (this: This, value: T, parent: Parent) => string;
 export type GroupAsyncFn<T, This, Parent> = (this: This, value: T, parent: Parent) => Promise<string> | string;

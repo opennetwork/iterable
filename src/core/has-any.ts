@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export function hasAny(iterable: Iterable<unknown>): boolean {
   const iterator = iterable[Symbol.iterator]();

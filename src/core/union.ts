@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export function *union<L, R>(left: Iterable<L>, right: Iterable<R>): IterableIterator<L | R> {
   for (const value of left) {

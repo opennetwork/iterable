@@ -1,4 +1,4 @@
-import { AsyncIterableLike, asyncIterable } from "./async-like";
+import { AsyncIterableLike, asyncIterable } from "../async-like";
 
 export type ReduceFn<T, This, Parent, Accumulator> = (this: This, value: T, parent: Parent) => Accumulator;
 export type ReduceAsyncFn<T, This, Parent, Accumulator> = (this: This, value: T, parent: Parent) => Promise<Accumulator> | Accumulator;

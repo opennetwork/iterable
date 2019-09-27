@@ -1,5 +1,5 @@
 import { FilterAsyncFn, FilterFn } from "./filter";
-import { AsyncIterableLike } from "./async-like";
+import { AsyncIterableLike } from "../async-like";
 import { except, asyncExcept } from "./except";
 import { asyncHasAny, hasAny } from "./has-any";
 

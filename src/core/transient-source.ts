@@ -19,8 +19,8 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   private pullPromise: Promise<void> = undefined;
 
   private values = new WeakLinkedList<T>();
-  private nextIndex: object = {};
-  private index: object = undefined;
+  private nextPointer: object = {};
+  private pointer: object = undefined;
 
   constructor(private source?: AsyncIterableLike<T>, private sourceCancellable?: Cancellable, private onThrow?: TransientAsyncIteratorSourceOnThrowFn<T>) {
 
@@ -67,9 +67,9 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     if (!this.open) {
       return false;
     }
-    this.values.insert(this.index, this.nextIndex, value);
-    this.index = this.nextIndex;
-    this.nextIndex = {};
+    this.values.insert(this.pointer, this.nextPointer, value);
+    this.pointer = this.nextPointer;
+    this.nextPointer = {};
     this.invokeDeferred(undefined);
     return true;
   }
@@ -182,43 +182,43 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   }
 
   [Symbol.asyncIterator]() {
-    let index: object = this.nextIndex;
-    let currentIndexConsumed: boolean = false;
+    let pointer: object = this.nextPointer;
+    let currentPointerConsumed: boolean = false;
 
     let nextPromise: Promise<unknown> = undefined;
 
     // We need this to be in series so that we have a stable progression from one value to the next
     const nextSeries = async (): Promise<IteratorResult<T>> => {
-      if (!index || this.isDone) {
+      if (!pointer || this.isDone) {
         // Force to always be done
-        index = undefined;
+        pointer = undefined;
         return { done: true, value: undefined };
       }
       if (this.error) {
         throw this.error;
       }
 
-      const node = this.values.get(index);
+      const node = this.values.get(pointer);
 
       if (!node) {
         await this.waitForNext();
         return nextSeries();
       }
 
-      if (!currentIndexConsumed) {
-        currentIndexConsumed = true;
+      if (!currentPointerConsumed) {
+        currentPointerConsumed = true;
         return { done: false, value: node.value };
       }
 
       if (node.next) {
-        index = node.next;
-        currentIndexConsumed = false;
+        pointer = node.next;
+        currentPointerConsumed = false;
         return nextSeries();
       }
 
-      // We're at the end, wait for the next index
-      index = this.nextIndex;
-      currentIndexConsumed = false;
+      // We're at the end, wait for the next pointer
+      pointer = this.nextPointer;
+      currentPointerConsumed = false;
       return nextSeries();
     };
 
@@ -236,7 +236,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
         return currentPromise;
       },
       return: async (): Promise<IteratorResult<T>> => {
-        index = undefined;
+        pointer = undefined;
         return { done: true, value: undefined };
       },
       throw: async (error?: unknown): Promise<IteratorResult<T>> => {

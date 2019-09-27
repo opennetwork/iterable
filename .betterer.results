@@ -1,1 +1,5 @@
 // BETTERER RESULTS V1.
+exports[`getLinkedListLike`] = { timestamp: 1569554121670, value: `true` };
+exports[`isLinkedListFunctioning`] = { timestamp: 1569554823103, value: `true` };
+exports[`doesLinkedListClearWhenInsertedNewHead`] = { timestamp: 1569554823104, value: `true` };
+exports[`doesLinkedListGetInitialised`] = { timestamp: 1569555372584, value: `true` };

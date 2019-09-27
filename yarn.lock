@@ -45,6 +45,11 @@
     npmlog "^4.1.2"
     tslib "^1.10.0"
 
+"@opennetwork/linked-list@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@opennetwork/linked-list/-/linked-list-1.0.1.tgz#be1ffe88c27265996d57419161f487695107319c"
+  integrity sha512-RnynrltfO35OE3GR45DTIDs3daiytn0/ixs/FHAr7FtnL8K5/sbbfRkoRadk6yQiwkJjtFGahAMxIKaqR2AuLA==
+
 "@types/node@^12.7.3":
   version "12.7.3"
   resolved "https://registry.npmjs.org/@types/node/-/node-12.7.3.tgz#27b3f40addaf2f580459fdb405222685542f907a"

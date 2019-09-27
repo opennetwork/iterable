@@ -1,3 +1,1 @@
-console.log("Hello");
-
-module.exports = import("better");
+module.exports = {}; // require("esm")(module)("./dist/next/betterers/index.js").default;

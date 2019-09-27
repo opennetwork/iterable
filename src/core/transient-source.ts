@@ -1,6 +1,6 @@
-import { reduce } from "./reduce";
 import { AsyncIterableLike, asyncIterator, isAsyncIterable, isIterable } from "./async-like";
 import { isCancelled, Cancellable } from "./cancellable";
+import { WeakLinkedList } from "@opennetwork/linked-list";
 
 type DeferredFn = (error: unknown) => void;
 export type TransientAsyncIteratorSourceOnThrowFn<T> = (error: unknown) => void | Promise<void> | IteratorResult<T> | Promise<IteratorResult<T>>;
@@ -12,14 +12,15 @@ export function source<T>(source?: AsyncIterableLike<T> | TransientAsyncIterator
 
 export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
 
-  private idGenerator: number = 0;
-  private indexes: Map<number, number> = new Map();
   private sourceIterator?: AsyncIterator<T>;
-  private inFlightValues: T[] = [];
   private deferred: DeferredFn[] = [];
   private isDone: boolean = false;
   private errorValue: unknown = undefined;
   private pullPromise: Promise<void> = undefined;
+
+  private values = new WeakLinkedList<T>();
+  private nextIndex: object = {};
+  private index: object = undefined;
 
   constructor(private source?: AsyncIterableLike<T>, private sourceCancellable?: Cancellable, private onThrow?: TransientAsyncIteratorSourceOnThrowFn<T>) {
 
@@ -51,11 +52,6 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     return !(this.isDone || this.error);
   }
 
-  // Allows for querying if anything was _pushed_ to the source
-  get inFlight() {
-    return this.open && this.inFlightValues.length > 0;
-  }
-
   get hasSource() {
     if (!this.open || isCancelled(this.sourceCancellable)) {
       return false;
@@ -71,14 +67,9 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     if (!this.open) {
       return false;
     }
-    if (!this.indexes.size) {
-      // Nothing to do, don't push to in flight because
-      // otherwise they'll just be sitting there for no reason
-      //
-      // No one is listening to hear the tree fall
-      return false;
-    }
-    this.inFlightValues.push(value);
+    this.values.insert(this.index, this.nextIndex, value);
+    this.index = this.nextIndex;
+    this.nextIndex = {};
     this.invokeDeferred(undefined);
     return true;
   }
@@ -190,56 +181,62 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
     }
   }
 
-  private moveForwardInFlightValues() {
-    if (!this.indexes.size) {
-      if (this.inFlightValues.length !== 0) {
-        // No need to hold any values if we have nothing to consume them
-        this.inFlightValues = [];
-      }
-      return; // No need to move forward, no indexes
-    }
-    const newMinimumIndex = reduce(this.indexes.values(), (min, next: number) => Math.min(next, min));
-    if (newMinimumIndex === 0) {
-      // Nothing to do, already there
-      return;
-    }
-    if (newMinimumIndex < 0) {
-      throw new Error("0: Pushable is in an invalid state, please report this here https://github.com/opennetwork/iterable");
-    }
-    // We want to go down to zero so we don't keep climbing to infinity
-    this.inFlightValues = this.inFlightValues.slice(newMinimumIndex);
-    this.indexes.forEach((value, key, map) => map.set(key, 0));
-  }
-
   [Symbol.asyncIterator]() {
-    const id = (this.idGenerator += 1);
-    // Start at the head
-    this.indexes.set(id, this.inFlightValues.length);
-    let returned: boolean = false;
-    const iterator = {
-      next: async (): Promise<IteratorResult<T>> => {
-        if (returned || this.isDone) {
-          // Force to always be done
-          returned = true;
-          return { done: true, value: undefined };
-        }
-        if (this.error) {
-          throw this.error;
-        }
-        const index = this.indexes.get(id);
-        if (index >= this.inFlightValues.length) {
-          await this.waitForNext();
-          return iterator.next();
-        }
-        const value = this.inFlightValues[index];
-        this.indexes.set(id, index + 1);
-        this.moveForwardInFlightValues();
-        return { done: false, value };
+    let index: object = this.nextIndex;
+    let currentIndexConsumed: boolean = false;
+
+    let nextPromise: Promise<unknown> = undefined;
+
+    // We need this to be in series so that we have a stable progression from one value to the next
+    const nextSeries = async (): Promise<IteratorResult<T>> => {
+      if (!index || this.isDone) {
+        // Force to always be done
+        index = undefined;
+        return { done: true, value: undefined };
+      }
+      if (this.error) {
+        throw this.error;
+      }
+
+      const node = this.values.get(index);
+
+      if (!node) {
+        await this.waitForNext();
+        return nextSeries();
+      }
+
+      if (!currentIndexConsumed) {
+        currentIndexConsumed = true;
+        return { done: false, value: node.value };
+      }
+
+      if (node.next) {
+        index = node.next;
+        currentIndexConsumed = false;
+        return nextSeries();
+      }
+
+      // We're at the end, wait for the next index
+      index = this.nextIndex;
+      currentIndexConsumed = false;
+      return nextSeries();
+    };
+
+    return {
+      next: async () => {
+        const currentPromise = (nextPromise || Promise.resolve(undefined))
+          .then(nextSeries)
+          .then(result => {
+            if (currentPromise === nextPromise) {
+              nextPromise = undefined;
+            }
+            return result;
+          });
+        nextPromise = currentPromise;
+        return currentPromise;
       },
       return: async (): Promise<IteratorResult<T>> => {
-        returned = true;
-        this.indexes.delete(id);
-        this.moveForwardInFlightValues();
+        index = undefined;
         return { done: true, value: undefined };
       },
       throw: async (error?: unknown): Promise<IteratorResult<T>> => {
@@ -255,7 +252,6 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
         return Promise.reject(error);
       }
     };
-    return iterator;
   }
 }
 

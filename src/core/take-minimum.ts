@@ -22,7 +22,7 @@ export function *takeMinimum<T>(iterable: Iterable<T>, count: number): Iterable<
     yield next.value;
   }
   do {
-    const next = iterator.next();
+    next = iterator.next();
     if (next.done) {
       break;
     }
@@ -49,7 +49,7 @@ export async function *asyncTakeMinimum<T>(iterable: AsyncIterableLike<T>, count
     yield next.value;
   }
   do {
-    const next = await iterator.next();
+    next = await iterator.next();
     if (next.done) {
       break;
     }

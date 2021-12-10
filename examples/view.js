@@ -1,4 +1,4 @@
-import { asyncView, source, asyncExtendedIterable } from "../dist";
+import { asyncView, source, asyncExtendedIterable } from "../dist/index.js";
 
 const iterable = asyncExtendedIterable(asyncView(source(() => Math.random())))
 

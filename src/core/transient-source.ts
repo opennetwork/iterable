@@ -162,7 +162,7 @@ export class TransientAsyncIteratorSource<T = any> implements AsyncIterable<T> {
   }
 
   private async waitForNext() {
-    const promise = new Promise((resolve, reject) => {
+    const promise = new Promise<void>((resolve, reject) => {
       this.deferred.push(error => {
         if (error) {
           return reject(error);

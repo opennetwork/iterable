@@ -1,5 +1,5 @@
 import { createServer } from "http";
-import { eventSource, asyncExtendedIterable } from "../dist";
+import { eventSource, asyncExtendedIterable } from "../dist/index.js";
 
 let count = 0;
 

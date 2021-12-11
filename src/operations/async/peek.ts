@@ -1,10 +1,12 @@
-export function peek(count: number) {
-  return function *<T>(iterable: Iterable<T>): IterableIterator<T> {
+import { AsyncOperation } from "../operation";
+
+export function peek<T>(count: number): AsyncOperation<T, AsyncIterable<T>> {
+  return async function *<T>(iterable: AsyncIterable<T>): AsyncIterable<T> {
     const peekedValues: T[] = [];
-    const iterator = iterable[Symbol.iterator]();
+    const iterator = iterable[Symbol.asyncIterator]();
     let next: IteratorResult<T>;
     for (let peeked = 0; peeked < count; peeked += 1) {
-      next = iterator.next();
+      next = await iterator.next();
       if (next.done) {
         break;
       }
@@ -17,11 +19,11 @@ export function peek(count: number) {
       return;
     }
     while (!next.done) {
-      next = iterator.next();
+      next = await iterator.next();
       if (!next.done) {
         yield next.value;
       }
     }
-    iterator.return?.();
+    await iterator.return?.();
   };
 }

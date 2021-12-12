@@ -54,7 +54,19 @@ console.log([...ops.contexts()]);
 for (const v of syncOps.iterable( [1, 2, 3])) {
   console.log({ v });
 }
+const instance = syncOps.instance( [1, 2, 3]);
+for (const v of instance) {
+  console.log({ v });
+}
+console.log([...instance]);
+console.log(instance, instance.then);
+console.log([...(await instance)]);
 console.log("Async");
 for await (const v of ops.asyncIterable( [1, 2, 3])) {
   console.log({ v });
 }
+const asyncInstance = ops.instance([1, 2, 3]);
+for await (const v of asyncInstance) {
+  console.log({ v });
+}
+console.log([...(await asyncInstance)]);

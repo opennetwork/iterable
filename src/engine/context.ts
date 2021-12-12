@@ -31,6 +31,10 @@ export type TypedOperationsArray<O extends InputOperationsArray> = O & (
 export type OperationsInputType<Operations extends unknown[]> =
   [Operations[0]] extends DirectOperationsArray<[Operations[0]], infer T> ? T : (AsyncIterable<unknown> | Iterable<unknown>);
 
+export interface IterablePromise<T> extends Iterable<T>, AsyncIterable<T> {
+  then: PromiseLike<Iterable<T>>["then"];
+}
+
 export interface IterableEngineContext<Operations extends unknown[], OIndex extends number | never> {
   operation?: OIndex extends number ? DirectOperationsArray<Operations>[OIndex] : never;
   index?: OIndex;
@@ -38,6 +42,7 @@ export interface IterableEngineContext<Operations extends unknown[], OIndex exte
   asyncIterable(input: OperationsInputType<Operations>): AsyncIterable<OperationReturnType<Operations[LastIndex<Operations>]>>;
   iterable(input: OperationsInputType<Operations>): Iterable<OperationReturnType<Operations[LastIndex<Operations>]>>;
   contexts(): Iterable<IterableEngineContext<Operations, number>>;
+  instance(input: OperationsInputType<Operations>): IterablePromise<Operations[LastIndex<Operations>]>;
 }
 
 export function createIterableEngineContext<
@@ -67,6 +72,30 @@ export function createIterableEngineContext<
         current = getNextIterableEngineContext(current);
         yield current;
       }
+    },
+    instance(input) {
+      type T = Operations[LastIndex<Operations>];
+      const context = this;
+      const instance: IterablePromise<T> = {
+        async *[Symbol.asyncIterator]() {
+          yield * context.asyncIterable(input);
+        },
+        *[Symbol.iterator]() {
+          yield * context.iterable(input);
+        },
+        then(resolve, reject) {
+          return async().then(resolve, reject);
+          async function async() {
+            const values: T[] = [];
+            let value: T;
+            for await (value of instance) {
+              values.push(value);
+            }
+            return values;
+          }
+        }
+      };
+      return instance;
     }
   };
 
@@ -157,35 +186,10 @@ export async function *iterateAsync(context: IterableEngineContext<unknown[], ne
   let current: AsyncIterable<unknown> | Iterable<unknown> = input;
   for (const next of context.contexts()) {
     if (!isCallable(next)) throw new IterableError("Unexpected instance state");
-    current = operationAsync(context, next, async(current));
+    current = operationAsync(context, next, current);
   }
   if (isIterable(current) || isAsyncIterable(current)) {
     yield * current;
-  }
-
-
-  async function *iterateCaught(input: AsyncIterable<unknown> | Iterable<unknown>) {
-    try {
-      for await (const value of async(input)) {
-        yield value;
-      }
-    } catch (error) {
-      if (error instanceof PromiseInterruptError) {
-        let input;
-        if (Array.isArray(error.promise)) {
-          input = await Promise.all(error.promise);
-        } else {
-          input = await error.promise;
-        }
-        if (!(isIterable(input) || isAsyncIterable(input))) throw new UnknownReturnedIterableError();
-        return yield * iterateAsync(error.next, input);
-      }
-      if (error instanceof AsyncIterableInterruptError) {
-        return yield * iterateAsync(error.next, error.iterable);
-      }
-      await Promise.reject(error);
-      throw error;
-    }
   }
 }
 
@@ -238,8 +242,10 @@ async function *operationAsync(context: IterableEngineContext<unknown[], number 
   } catch (error) {
     if (error instanceof PromiseInterruptError) {
       if (!Array.isArray(error.promise)) {
+        debug(next, "Have promise");
         returned = await error.promise;
       } else {
+        debug(next, "Have promises");
         returned = (async function *(promises: Promise<unknown>[]) {
           for (const promise of promises) {
             yield await promise;
@@ -247,10 +253,12 @@ async function *operationAsync(context: IterableEngineContext<unknown[], number 
         })(error.promise);
       }
     } else if (error instanceof AsyncIterableInterruptError) {
+      debug(next, "Have async result");
       returned = error.iterable;
     } else // This would only be caught if it was thrown at function call time
     // this is not true for generators
     if (error instanceof ExpectedAsyncOperationError) {
+      debug(next, "Have async operation");
       returned = error.operation(async(input));
     } else {
       await Promise.reject(error);
@@ -275,12 +283,14 @@ async function *operationAsync(context: IterableEngineContext<unknown[], number 
 }
 
 function *operation(context: IterableEngineContext<unknown[], number | never>, next: CallableIterableEngineContext, input: AsyncIterable<unknown> | Iterable<unknown>): Iterable<unknown> {
+  debug(next, "Try sync");
   const returned = next.operation(input);
   if (!isIterable(returned)) {
     if (isAsyncIterable(returned)) throw new AsyncIterableInterruptError(returned, context, next);
     if (isPromise(returned)) throw new PromiseInterruptError(returned, context, next);
     throw new UnknownReturnedIterableError();
   }
+  debug(next, "Have sync");
   yield * iterableOperationReturn(context, next, returned);
 }
 
@@ -303,4 +313,8 @@ function *iterableOperationReturn(context: IterableEngineContext<unknown[], numb
     }
   }
   if (promises.length) throw new PromiseInterruptError(promises, context, next);
+}
+
+function debug(context: IterableEngineContext<unknown[], number | never> | CallableIterableEngineContext, ...args: unknown[]) {
+  // console.log(context.operation, ...args);
 }

@@ -1,5 +1,11 @@
+import { isAsyncIterable } from "../../async-like";
+import * as Async from "../async";
+
 export function peek(count: number) {
   return function *<T>(iterable: Iterable<T>): IterableIterator<T> {
+    if (isAsyncIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
+      Async.peek(count)
+    );
     const peekedValues: T[] = [];
     const iterator = iterable[Symbol.iterator]();
     let next: IteratorResult<T>;

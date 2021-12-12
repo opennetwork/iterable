@@ -1,9 +1,7 @@
 import { AsyncOperation } from "../operation";
 
 export interface FilterFn<T, Is extends T = T> {
-  (value: T): value is Is;
-  (value: T): Promise<boolean>;
-  (value: T): boolean;
+  (value: T): boolean | Promise<boolean>;
 }
 
 function negateIfNeeded(negate: boolean, value: boolean): boolean {

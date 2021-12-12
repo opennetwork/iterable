@@ -7,5 +7,5 @@ export function toArray<T>(): AsyncOperation<T, Promise<T[]>> {
       values.push(value);
     }
     return values;
-  }
+  };
 }

@@ -1,9 +1,14 @@
 import { SyncOperation } from "../operation";
+import { isAsyncIterable } from "../../async-like";
+import * as Async from "../async";
 
 export type GroupFn<T> = (value: T) => unknown;
 
 export function group<T, This, Parent>(callbackFn: GroupFn<T>): SyncOperation<T, IterableIterator<IterableIterator<T>>> {
   return function *(iterable) {
+    if (isAsyncIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
+      Async.group(callbackFn)
+    );
     const groups = new Map<unknown, T[]>();
     const newGroups: IterableIterator<T>[] = [];
 

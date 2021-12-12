@@ -11,6 +11,6 @@ export * from "./to-array";
 export * from "./flat-map";
 export * from "./distinct";
 export * from "./group";
-export * from "./view";
 export * from "./peek";
 export * from "./take-minimum";
+export * from "./error";

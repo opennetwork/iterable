@@ -1,7 +1,8 @@
 import { SyncOperation } from "../operation";
+import { isAsyncIterable } from "../../async-like";
+import * as Async from "../async";
 
 export interface FilterFn<T, Is extends T = T> {
-  (value: T): value is Is;
   (value: T): boolean;
 }
 
@@ -11,6 +12,9 @@ function negateIfNeeded(negate: boolean, value: boolean): boolean {
 
 export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = false): SyncOperation<T, IterableIterator<T>> {
   return function *filter(iterable) {
+    if (isAsyncIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
+      Async.filterNegatable(callbackFn)
+    );
     for (const value of iterable) {
       if (negateIfNeeded(negate, callbackFn(value))) {
         yield value;

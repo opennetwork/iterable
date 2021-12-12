@@ -11,7 +11,6 @@ export function some<T>(callbackFn: FilterFn<T>): SyncOperation<T, boolean> {
     if (isAsyncIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
       Async.some(callbackFn)
     );
-    const filtered = filterOp(iterable);
-    return hasAnyOp(filtered);
+    return hasAnyOp(filterOp(iterable));
   };
 }

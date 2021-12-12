@@ -39,6 +39,7 @@ export interface IterableEngineContext<Operations extends unknown[], OIndex exte
   operation?: OIndex extends number ? DirectOperationsArray<Operations>[OIndex] : never;
   index?: OIndex;
   operations: Operations;
+  concat(...operations: unknown[]): IterableEngineContext<unknown[], number | never>;
   asyncIterable(input: OperationsInputType<Operations>): AsyncIterable<OperationReturnType<Operations[LastIndex<Operations>]>>;
   iterable(input: OperationsInputType<Operations>): Iterable<OperationReturnType<Operations[LastIndex<Operations>]>>;
   contexts(): Iterable<IterableEngineContext<Operations, number>>;
@@ -54,14 +55,21 @@ export function createIterableEngineContext<
   assertTyped(operations);
   const emptyContext: IterableEngineContext<Operations, never> = {
     operations,
+    concat(operations: unknown[]): IterableEngineContext<unknown[], number | never> {
+      const unknownContext: IterableEngineContext<unknown[], number> = this ?? emptyContext;
+      return {
+        ...unknownContext,
+        operations: unknownContext.operations.concat(operations)
+      };
+    },
     async *asyncIterable(input) {
-      const unknownContext: IterableEngineContext<unknown[], number> = this;
+      const unknownContext: IterableEngineContext<unknown[], number> = this ?? emptyContext;
       const unknownInput: unknown = input;
       if (!(isAsyncIterable(unknownInput) || isIterable(unknownInput))) throw new Error();
       yield * iterateAsync(unknownContext, unknownInput);
     },
     *iterable(input) {
-      const unknownContext: IterableEngineContext<unknown[], number> = this;
+      const unknownContext: IterableEngineContext<unknown[], number> = this ?? emptyContext;
       const unknownInput: unknown = input;
       if (!isIterable(unknownInput)) throw new Error();
       yield * iterate(unknownContext, unknownInput);
@@ -86,12 +94,21 @@ export function createIterableEngineContext<
         then(resolve, reject) {
           return async().then(resolve, reject);
           async function async() {
-            const values: T[] = [];
-            let value: T;
-            for await (value of instance) {
-              values.push(value);
+            try {
+              const values: T[] = [];
+              let value: T;
+              for await (value of instance) {
+                values.push(value);
+              }
+              return values;
+            } catch (error) {
+              if (error instanceof UnknownReturnedIterableError) {
+                return error.value;
+              } else {
+                await Promise.reject(error);
+                throw error;
+              }
             }
-            return values;
           }
         }
       };
@@ -174,7 +191,7 @@ class UnknownValueError extends IterableError {
 }
 
 class UnknownReturnedIterableError extends IterableError {
-  constructor() {
+  constructor(public value?: unknown) {
     super("Unknown return value for iterable operation");
   }
 }
@@ -266,7 +283,7 @@ async function *operationAsync(context: IterableEngineContext<unknown[], number 
     }
   }
   if (isAsyncIterable(returned)) return yield * returned;
-  if (!isIterable(returned)) throw new UnknownReturnedIterableError();
+  if (!isIterable(returned)) throw new UnknownReturnedIterableError(returned);
   try {
     yield * iterableOperationReturn(context, next, returned);
   } catch (error) {
@@ -288,7 +305,7 @@ function *operation(context: IterableEngineContext<unknown[], number | never>, n
   if (!isIterable(returned)) {
     if (isAsyncIterable(returned)) throw new AsyncIterableInterruptError(returned, context, next);
     if (isPromise(returned)) throw new PromiseInterruptError(returned, context, next);
-    throw new UnknownReturnedIterableError();
+    throw new UnknownReturnedIterableError(returned);
   }
   debug(next, "Have sync");
   yield * iterableOperationReturn(context, next, returned);

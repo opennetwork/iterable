@@ -7,6 +7,6 @@ export function every<T>(callbackFn: FilterFn<T>): AsyncOperation<T, Promise<boo
   const op = except(callbackFn);
   const any = hasAny();
   return async function(iterable) {
-    return any(op(iterable));
+    return !(await any(op(iterable)));
   };
 }

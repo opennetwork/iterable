@@ -70,3 +70,21 @@ for await (const v of asyncInstance) {
   console.log({ v });
 }
 console.log([...(await asyncInstance)]);
+
+const opsBranch1 = ops.concat(Async.filter((value: { value: number }) => {
+  return value.value >= 50;
+}));
+
+console.log(await opsBranch1.instance([1, 2, 3]));
+
+const opsBranch2 = ops.concat(Async.every((value: { value: number }) => {
+  return value.value >= 30;
+}));
+
+console.log(await opsBranch2.instance([1, 2, 3]));
+
+const opsBranch3 = ops.concat(Async.every((value: { value: number }) => {
+  return value.value >= 55;
+}));
+
+console.log(await opsBranch3.instance([1, 2, 3]));

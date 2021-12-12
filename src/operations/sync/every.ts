@@ -12,7 +12,6 @@ export function every<T>(callbackFn: FilterFn<T>): SyncOperation<T, boolean> {
     if (isAsyncIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
       Async.every(callbackFn)
     );
-    const iterableResult = op(iterable);
-    return !anyOp(iterableResult);
+    return !anyOp(op(iterable));
   };
 }

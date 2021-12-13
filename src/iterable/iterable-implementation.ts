@@ -30,10 +30,12 @@ import {
 } from "../core";
 import { IterableTuple } from "./iterable-tuple";
 import { IterableTypeReferenceMap } from "./reference-map-type";
+import { createIterableEngineContext, IterableEngineContext } from "../engine/context";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   private readonly iterable: Iterable<T>;
+  private context: IterableEngineContext<((input: Iterable<T>) => Iterable<T>)[], never | number>;
 
   constructor(iterable: Iterable<T>, protected referenceMap: IterableTypeReferenceMap) {
     this.iterable = iterable;
@@ -144,5 +146,7 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
   [Symbol.iterator]() {
     return this.iterable[Symbol.iterator]();
   }
+
+
 
 }

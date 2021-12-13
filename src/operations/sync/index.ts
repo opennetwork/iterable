@@ -14,3 +14,6 @@ export * from "./group";
 export * from "./view";
 export * from "./peek";
 export * from "./take-minimum";
+export * from "./take";
+export * from "./drop";
+export * from "./as-indexed-pairs";

@@ -1,7 +1,9 @@
-export interface SyncOperation<I, O> {
-  (input: Iterable<I>): O;
+import { InputFunction } from "../engine/context";
+
+export interface SyncOperation<I, O> extends InputFunction<Iterable<I>, O> {
+
 }
 
-export interface AsyncOperation<I, O> {
-  (input: AsyncIterable<I>): O;
+export interface AsyncOperation<I, O> extends InputFunction<AsyncIterable<I>, O> {
+
 }

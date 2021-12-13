@@ -190,7 +190,7 @@ class UnknownValueError extends IterableError {
   }
 }
 
-class UnknownReturnedIterableError extends IterableError {
+export class UnknownReturnedIterableError extends IterableError {
   constructor(public value?: unknown) {
     super("Unknown return value for iterable operation");
   }
@@ -232,22 +232,30 @@ async function *async(input: AsyncIterable<unknown> | Iterable<unknown>) {
 
 type CallableIterableEngineContext = IterableEngineContext<[InputFunction<AsyncIterable<unknown> | Iterable<unknown>>, ...InputFunction<AsyncIterable<unknown> | Iterable<unknown>>[]], number>;
 
-function isCallable<T>(context: unknown): context is CallableIterableEngineContext {
-  function isContext(context: unknown): context is {
-    index: unknown,
-    operation: unknown,
-    operations: unknown,
-    contexts: unknown,
-    asyncIterable: unknown,
-  } {
-    return !!context;
-  }
-  return isContext(context) && (
+function isContextLike(context: unknown): context is {
+  index: unknown,
+  operation: unknown,
+  operations: unknown,
+  contexts: unknown,
+  asyncIterable: unknown,
+  instance: unknown,
+} {
+  return !!context;
+}
+
+export function isIterableEngineContext<O extends unknown[], I extends number | never>(context: unknown): context is IterableEngineContext<O, I> {
+  return isContextLike(context) && (
     typeof context.index === "number" &&
     typeof context.contexts === "function" &&
     typeof context.operation === "function" &&
     typeof context.asyncIterable === "function" &&
-    Array.isArray(context.operations) &&
+    typeof context.instance === "function" &&
+    Array.isArray(context.operations)
+  );
+}
+
+function isCallable<T>(context: unknown): context is CallableIterableEngineContext {
+  return isIterableEngineContext(context) && (
     !!context.operations[0]
   );
 }

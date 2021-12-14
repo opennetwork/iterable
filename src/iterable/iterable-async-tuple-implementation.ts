@@ -7,6 +7,8 @@ import { ExtendedIterableAsyncImplementation } from "./iterable-async-implementa
 import { AsyncIterableTuple } from "./iterable-async-tuple";
 import { isTupleArray } from "./tuple";
 import { IterableTypeReferenceMap } from "./reference-map-type";
+import { constructTC39IteratorHelpers } from "../tc39/construct";
+import * as Async from "../operations/async";
 
 export class ExtendedIterableAsyncTupleImplementation<T, S extends number> extends ExtendedIterableAsyncImplementation<T> implements AsyncIterableTuple<T, S> {
 
@@ -15,6 +17,7 @@ export class ExtendedIterableAsyncTupleImplementation<T, S extends number> exten
   constructor(iterable: AsyncIterableLike<T>, size: S, referenceMap: IterableTypeReferenceMap) {
     super(asyncTakeMinimum(iterable, size), referenceMap);
     this.size = size;
+    constructTC39IteratorHelpers(this, Async);
   }
 
   async toArray() {

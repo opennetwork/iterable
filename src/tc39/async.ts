@@ -17,8 +17,15 @@ import {
   take,
   toArray
 } from "../operations/async";
+import { TC39IteratorHelpers } from "./construct";
+import * as Async from "../operations/async";
 
-export class TC39AsyncIteratorHelpers<T> implements TC39AsyncIterableHelpersObject<T> {
+export class TC39AsyncIteratorHelpers<T> extends TC39IteratorHelpers implements TC39AsyncIterableHelpersObject<T> {
+
+  constructor() {
+    super(Async);
+  }
+
   async *[Symbol.asyncIterator](): AsyncIterator<T> {
 
   }

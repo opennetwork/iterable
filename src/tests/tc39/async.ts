@@ -17,6 +17,7 @@ import {
   toArray
 } from "../../operations/async";
 import { InputOperationsArray, IterableEngineContext, UnknownReturnedIterableError } from "../../engine/context";
+import { isAsyncIterable, isIterable } from "../../async-like";
 
 export interface TC39AsyncIterableHelpersObject<T> extends AsyncIterable<T> {
   map?<O>(mapperFn: MapFn<T, O>): TC39AsyncIterableHelpersObject<O>;
@@ -124,7 +125,9 @@ export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperat
 
     const naturalsArrayOps = test(take(5), toArray());
     // toArray is an Iterable so is seen as a valid operation result
-    const naturalsArrayResultIterator = naturalsArrayOps.instance(naturals())[Symbol.asyncIterator]();
+    const naturalsArrayResult = await naturalsArrayOps.instance(naturals());
+    const naturalsArrayResultIterator = isIterable(naturalsArrayResult) ?
+      naturalsArrayResult[Symbol.iterator]() : naturalsArrayResult[Symbol.asyncIterator]();
     const naturalsArrayResult0 = await naturalsArrayResultIterator.next();
     ok(naturalsArrayResult0.value === 0);
     const naturalsArrayResult1 = await naturalsArrayResultIterator.next();
@@ -164,7 +167,8 @@ export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperat
     if (error) throw error;
   };
 
-  async function getThrownResult(iterable: AsyncIterable<unknown>) {
+  async function getThrownResult(iterable: unknown) {
+    if (!isAsyncIterable(iterable)) return iterable;
     try {
       let value;
       for await (value of iterable) { }

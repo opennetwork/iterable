@@ -1,4 +1,4 @@
-import { Arguments, AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Name, Returns } from "../operation";
 
 export function toArray<T>() {
   const fn: AsyncOperation<T, Promise<T[]>> = async function(iterable) {
@@ -10,6 +10,8 @@ export function toArray<T>() {
   };
   fn[Name] = "toArray";
   fn[Arguments] = [];
+  fn[Returns] = true;
   return fn;
 }
 toArray[Name] = "toArray";
+toArray[Returns] = true;

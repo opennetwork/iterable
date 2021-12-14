@@ -17,8 +17,14 @@ import {
   take,
   toArray
 } from "../operations/sync";
+import { TC39IteratorHelpers } from "./construct";
+import * as Sync from "../operations/sync";
 
-export class TC39SyncIteratorHelpers<T> implements TC39IterableHelpersObject<T> {
+export class TC39SyncIteratorHelpers<T> extends TC39IteratorHelpers implements TC39IterableHelpersObject<T> {
+
+  constructor() {
+    super(Sync);
+  }
 
   *[Symbol.iterator](): Iterator<T> {
 

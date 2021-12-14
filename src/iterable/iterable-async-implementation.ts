@@ -35,6 +35,8 @@ import {
 import { ExtendedAsyncIterable } from "./iterable-async";
 import { AsyncIterableTuple } from "./iterable-async-tuple";
 import { IterableTypeReferenceMap } from "./reference-map-type";
+import { constructTC39IteratorHelpers } from "../tc39/construct";
+import * as Async from "../operations/async";
 
 export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIterable<T> {
 
@@ -42,6 +44,7 @@ export class ExtendedIterableAsyncImplementation<T> implements ExtendedAsyncIter
 
   constructor(iterable: AsyncIterableLike<T>, protected referenceMap: IterableTypeReferenceMap) {
     this.iterable = asyncIterable(iterable);
+    constructTC39IteratorHelpers(this, Async);
   }
 
   drain(): Promise<boolean> {

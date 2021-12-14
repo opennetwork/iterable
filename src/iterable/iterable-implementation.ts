@@ -31,6 +31,8 @@ import {
 import { IterableTuple } from "./iterable-tuple";
 import { IterableTypeReferenceMap } from "./reference-map-type";
 import { createIterableEngineContext, IterableEngineContext } from "../engine/context";
+import { constructTC39IteratorHelpers } from "../tc39/construct";
+import * as Sync from "../operations/sync";
 
 export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
@@ -39,6 +41,7 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   constructor(iterable: Iterable<T>, protected referenceMap: IterableTypeReferenceMap) {
     this.iterable = iterable;
+    constructTC39IteratorHelpers(this, Sync);
   }
 
   drain(): boolean {

@@ -1,7 +1,7 @@
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 import { filter, FilterFn } from "./filter";
-import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, Returns, SyncOperation } from "../operation";
 
 export function find<T>(callbackFn: FilterFn<T>) {
   const op = filter(callbackFn);
@@ -17,7 +17,9 @@ export function find<T>(callbackFn: FilterFn<T>) {
   fn[Name] = "find";
   fn[Arguments] = [callbackFn];
   fn[GetAsync] = () => Async.find(callbackFn);
+  fn[Returns] = true;
   return fn;
 }
 find[Name] = "find";
 find[AsyncFn] = Async.find;
+find[Returns] = true;

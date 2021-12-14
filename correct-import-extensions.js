@@ -29,7 +29,7 @@ for (const packagePath of paths) {
                     "utf-8"
                 );
 
-                const statements = contents.match(/(import|export) .+ from ".+";/g);
+                const statements = contents.match(/(import|export)( .+ from)? ".+";/g);
 
                 if (!statements) {
                     return;

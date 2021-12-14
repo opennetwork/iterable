@@ -1,6 +1,6 @@
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
-import { AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 
 export function asIndexedPairs<T>() {
   const fn: SyncOperation<T, Iterable<[number, T]>> = function *asIndexedPairs<T>(iterable: Iterable<T>): Iterable<[number, T]> {
@@ -14,6 +14,7 @@ export function asIndexedPairs<T>() {
     }
   };
   fn[Name] = "asIndexedPairs";
+  fn[Arguments] = [];
   fn[GetAsync] = () => Async.asIndexedPairs<T>();
   return fn;
 }

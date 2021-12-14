@@ -1,4 +1,4 @@
-import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, Returns, SyncOperation } from "../operation";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
@@ -16,9 +16,11 @@ export function reduce<T, Accumulator>(callbackFn: ReduceFn<T, Accumulator>, ini
     return accumulator;
   };
   fn[Name] = "reduce";
-  fn[Arguments] = [callbackFn];
+  fn[Arguments] = [callbackFn, initialValue];
   fn[GetAsync] = () => Async.reduce(callbackFn, initialValue);
+  fn[Returns] = true;
   return fn;
 }
 reduce[Name] = "reduce";
 reduce[AsyncFn] = Async.reduce;
+reduce[Returns] = true;

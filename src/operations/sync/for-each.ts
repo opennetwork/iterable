@@ -1,4 +1,4 @@
-import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, Returns, SyncOperation } from "../operation";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
@@ -16,7 +16,9 @@ export function forEach<T>(callbackFn: ForEachFn<T>) {
   fn[Name] = "forEach";
   fn[Arguments] = [callbackFn];
   fn[GetAsync] = () => Async.forEach(callbackFn);
+  fn[Returns] = true;
   return fn;
 }
 forEach[Name] = "forEach";
 forEach[AsyncFn] = Async.forEach;
+forEach[Returns] = true;

@@ -1,4 +1,4 @@
-import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Internal, Name, SyncOperation } from "../operation";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
@@ -24,10 +24,12 @@ export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = fa
   fn[Name] = "filterNegatable";
   fn[GetAsync] = () => Async.filterNegatable(callbackFn);
   fn[Arguments] = [callbackFn, negate];
+  fn[Internal] = true;
   return fn;
 }
 filterNegatable[Name] = "filterNegatable";
 filterNegatable[AsyncFn] = Async.filterNegatable;
+filterNegatable[Internal] = true;
 
 export function filter<T, Is extends T>(callbackFn: FilterFn<T, Is>): SyncOperation<T, Iterable<Is>>;
 export function filter<T>(callbackFn: FilterFn<T>): SyncOperation<T, Iterable<T>>;

@@ -1,5 +1,5 @@
 import { filter, FilterFn } from "./filter";
-import { Arguments, AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Name, Returns } from "../operation";
 
 export function find<T>(callbackFn: FilterFn<T>) {
   const op = filter(callbackFn);
@@ -11,6 +11,8 @@ export function find<T>(callbackFn: FilterFn<T>) {
   };
   fn[Name] = "find";
   fn[Arguments] = [callbackFn];
+  fn[Returns] = true;
   return fn;
 }
 find[Name] = "find";
+find[Returns] = true;

@@ -1,7 +1,7 @@
 import { FilterFn } from "./filter";
 import { except } from "./except";
 import { hasAny } from "./has-any";
-import { Arguments, AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Name, Returns } from "../operation";
 
 export function every<T>(callbackFn: FilterFn<T>) {
   const op = except(callbackFn);
@@ -11,6 +11,8 @@ export function every<T>(callbackFn: FilterFn<T>) {
   };
   fn[Name] = "every";
   fn[Arguments] = [callbackFn];
+  fn[Returns] = true;
   return fn;
 }
 every[Name] = "every";
+every[Returns] = true;

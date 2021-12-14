@@ -15,3 +15,4 @@ export function take<T>(count: number) {
   fn[Arguments] = [count];
   return fn;
 }
+take[Name] = "take";

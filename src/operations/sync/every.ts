@@ -1,7 +1,7 @@
 import { FilterFn } from "./filter";
 import { except } from "./except";
 import { hasAny } from "./has-any";
-import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, Returns, SyncOperation } from "../operation";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
@@ -17,7 +17,9 @@ export function every<T>(callbackFn: FilterFn<T>) {
   fn[Name] = "every";
   fn[Arguments] = [callbackFn];
   fn[GetAsync] = () => Async.every(callbackFn);
+  fn[Returns] = true;
   return fn;
 }
 every[Name] = "every";
 every[AsyncFn] = Async.every;
+every[Returns] = true;

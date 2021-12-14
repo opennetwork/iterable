@@ -14,9 +14,10 @@
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build",
-    "test": "yarn build && betterer",
+    "test": "yarn build && node dist/tests/index.js",
     "example:server": "yarn build && node examples/node-server.js",
-    "example:view": "yarn build && node examples/view.js"
+    "example:view": "yarn build && node examples/view.js",
+    "coverage": "c8 yarn test"
   },
   "peerDependencies": {},
   "dependencies": {
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@betterer/cli": "^0.1.3",
     "@types/node": "^16.11.12",
+    "c8": "^7.10.0",
     "esm": "^3.2.25",
     "filehound": "^1.17.5",
     "tslint": "^6.1.3",

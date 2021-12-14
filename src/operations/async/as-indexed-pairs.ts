@@ -1,4 +1,4 @@
-import { AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Name } from "../operation";
 
 export function asIndexedPairs<T>() {
   const fn: AsyncOperation<T, AsyncIterable<[number, T]>> = async function *asIndexedPairs<T>(iterable: AsyncIterable<T>): AsyncIterable<[number, T]> {
@@ -9,5 +9,7 @@ export function asIndexedPairs<T>() {
     }
   };
   fn[Name] = "asIndexedPairs";
+  fn[Arguments] = [];
   return fn;
 }
+asIndexedPairs[Name] = "asIndexedPairs";

@@ -1,4 +1,4 @@
-import { Arguments, AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Internal, Name } from "../operation";
 
 export interface FilterFn<T, Is extends T = T> {
   (value: T): boolean | Promise<boolean>;
@@ -18,9 +18,11 @@ export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = fa
   };
   fn[Name] = "filterNegatable";
   fn[Arguments] = [callbackFn, negate];
+  fn[Internal] = true;
   return fn;
 }
 filterNegatable[Name] = "filterNegatable";
+filterNegatable[Internal] = true;
 
 export function filter<T, Is extends T>(callbackFn: FilterFn<T, Is>): AsyncOperation<T, AsyncIterable<Is>>;
 export function filter<T>(callbackFn: FilterFn<T>): AsyncOperation<T, AsyncIterable<T>>;

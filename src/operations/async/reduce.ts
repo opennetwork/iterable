@@ -1,4 +1,4 @@
-import { Arguments, AsyncOperation, Name } from "../operation";
+import { Arguments, AsyncOperation, Name, Returns } from "../operation";
 
 export type ReduceFn<T, Accumulator> = (accumulator: Accumulator, value: T) => Accumulator | Promise<Accumulator>;
 
@@ -11,7 +11,9 @@ export function reduce<T, Accumulator>(callbackFn: ReduceFn<T, Accumulator>, ini
     return accumulator;
   };
   fn[Name] = "reduce";
-  fn[Arguments] = [arguments];
+  fn[Arguments] = [callbackFn, initialValue];
+  fn[Returns] = true;
   return fn;
 }
 reduce[Name] = "reduce";
+reduce[Returns] = true;

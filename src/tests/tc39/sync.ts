@@ -16,6 +16,7 @@ import {
   take,
   toArray
 } from "../../operations/sync";
+import { isIterable } from "../../async-like";
 
 export interface TC39IterableHelpersObject<T> extends Iterable<T> {
   map?<O>(mapperFn: MapFn<T, O>): TC39IterableHelpersObject<O>;
@@ -152,7 +153,8 @@ export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, 
   const findOps = test(find((value: number) => value > 1));
   ok(getThrownResult(findOps.instance(naturals())) === 2);
 
-  function getThrownResult(iterable: Iterable<unknown>) {
+  function getThrownResult(iterable: unknown) {
+    if (!isIterable(iterable)) return iterable;
     try {
       return void [...iterable];
     } catch (error) {

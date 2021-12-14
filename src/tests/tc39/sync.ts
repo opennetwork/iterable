@@ -7,18 +7,29 @@ import {
 import {
   asIndexedPairs,
   drop, every,
-  filter, find,
+  filter, FilterFn, find,
   flatMap,
-  forEach,
-  map,
-  reduce,
+  forEach, ForEachFn,
+  map, MapFn,
+  reduce, ReduceFn,
   some,
   take,
   toArray
 } from "../../operations/sync";
 
 export interface IterableHelpersObject<T> extends Iterable<T> {
-
+  map?<O>(mapperFn: MapFn<T, O>): IterableHelpersObject<O>;
+  filter?(filterFn: FilterFn<T>): IterableHelpersObject<T>;
+  take?(limit: number): IterableHelpersObject<T>;
+  drop?(limit: number): IterableHelpersObject<T>;
+  asIndexedPairs?(): IterableHelpersObject<[number, T]>;
+  flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): IterableHelpersObject<O>;
+  reduce?<A>(reduceFn: ReduceFn<T, A>): A;
+  toArray?(): T[];
+  forEach?(callbackFn: ForEachFn<T>): void;
+  some?(filterFn: FilterFn<T>): boolean;
+  every?(filterFn: FilterFn<T>): boolean;
+  find?(filterFn: FilterFn<T>): T | undefined;
 }
 
 export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): IterableHelpersObject<T> } {

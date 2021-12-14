@@ -35,9 +35,14 @@ export interface IterablePromise<T> extends Iterable<T>, AsyncIterable<T> {
   then: PromiseLike<Iterable<T>>["then"];
 }
 
+export interface IterableEngineAbortSignal {
+  aborted: boolean;
+}
+
 export interface IterableEngineContext<Operations extends unknown[], OIndex extends number | never> {
   operation?: OIndex extends number ? DirectOperationsArray<Operations>[OIndex] : never;
   index?: OIndex;
+  signal?: IterableEngineAbortSignal;
   operations: Operations;
   concat(...operations: unknown[]): IterableEngineContext<unknown[], number | never>;
   asyncIterable(input: OperationsInputType<Operations>): AsyncIterable<OperationReturnType<Operations[LastIndex<Operations>]>>;
@@ -77,6 +82,9 @@ export function createIterableEngineContext<
     *contexts(this: IterableEngineContext<Operations, number | never>): Iterable<IterableEngineContext<Operations, number>> {
       let current: IterableEngineContext<Operations, number> = this ?? emptyContext;
       while ((current.index ?? -1) + 1 < current.operations.length) {
+        if (this.signal?.aborted) {
+          throw new Error("Aborted");
+        }
         current = getNextIterableEngineContext(current);
         yield current;
       }
@@ -86,10 +94,20 @@ export function createIterableEngineContext<
       const context = this;
       const instance: IterablePromise<T> = {
         async *[Symbol.asyncIterator]() {
-          yield * context.asyncIterable(input);
+          for await (const value of context.asyncIterable(input)) {
+            yield value;
+            if (this.signal?.aborted) {
+              throw new Error("Aborted");
+            }
+          }
         },
         *[Symbol.iterator]() {
-          yield * context.iterable(input);
+          for (const value of context.iterable(input)) {
+            yield value;
+            if (this.signal?.aborted) {
+              throw new Error("Aborted");
+            }
+          }
         },
         then(resolve, reject) {
           return async().then(resolve, reject);

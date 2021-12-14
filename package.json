@@ -17,7 +17,7 @@
     "test": "yarn build && node dist/tests/index.js",
     "example:server": "yarn build && node examples/node-server.js",
     "example:view": "yarn build && node examples/view.js",
-    "coverage": "c8 yarn test"
+    "coverage": "c8 -r html -r text-summary yarn test"
   },
   "peerDependencies": {},
   "dependencies": {

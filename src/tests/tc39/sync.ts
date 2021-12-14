@@ -4,13 +4,24 @@ import {
   IterableEngineContext,
   UnknownReturnedIterableError
 } from "../../engine/context";
-import { asIndexedPairs, drop, filter, flatMap, forEach, map, reduce, take, toArray } from "../../operations/sync";
+import {
+  asIndexedPairs,
+  drop, every,
+  filter, find,
+  flatMap,
+  forEach,
+  map,
+  reduce,
+  some,
+  take,
+  toArray
+} from "../../operations/sync";
 
 export interface IterableHelpersObject<T> extends Iterable<T> {
 
 }
 
-export function assertTC39IterableHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): IterableHelpersObject<T> } {
+export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): IterableHelpersObject<T> } {
 
   function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => Omit<IterableEngineContext<unknown[], never | number>, "instance"> & { instance<T>(input: Iterable<T>): IterableHelpersObject<T> } {
     if (typeof test !== "function") throw new Error();
@@ -103,6 +114,19 @@ export function assertTC39IterableHelpersObject<O extends InputOperationsArray, 
   const forEachOps = test(drop(1), take(3), forEach((value) => forEachLog.push(value)));
   getThrownResult(forEachOps.instance(naturals()));
   ok(forEachLog.join(", ") === "1, 2, 3"); // "1, 2, 3"
+
+  const someOps = test(take(4), some(v => v > 1));
+  ok(getThrownResult(someOps.instance(naturals())) === true);
+  const someOpsOneFalse = test(take(4), some(v => v === 1));
+  ok(getThrownResult(someOpsOneFalse.instance(naturals())) === true);
+
+  const everyOverOps = test(drop(1), take(4), every(v => v > 1));
+  ok(getThrownResult(everyOverOps.instance(naturals())) === false); // false, first value is 1
+  const everyOverEqualOps = test(drop(1), take(4), every(v => v >= 1));
+  ok(getThrownResult(everyOverEqualOps.instance(naturals())) === true);
+
+  const findOps = test(find((value: number) => value > 1));
+  ok(getThrownResult(findOps.instance(naturals())) === 2);
 
   function getThrownResult(iterable: Iterable<unknown>) {
     try {

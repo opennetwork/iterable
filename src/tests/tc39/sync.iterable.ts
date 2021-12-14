@@ -1,5 +1,5 @@
-import { assertTC39IterableHelpersObject } from "./sync";
+import { assertTC39IteratorHelpersObject } from "./sync";
 import { createIterableEngineContext, InputOperationsArray } from "../../engine/context";
 
-assertTC39IterableHelpersObject((...operations: InputOperationsArray) => createIterableEngineContext(...operations));
+assertTC39IteratorHelpersObject((...operations: InputOperationsArray) => createIterableEngineContext(...operations));
 console.log("PASS createIterableEngineContext");

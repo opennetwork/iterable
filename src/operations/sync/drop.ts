@@ -1,10 +1,11 @@
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
+import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 
-export function drop(count: number) {
-  return function *drop<T>(iterable: Iterable<T>): Iterable<T> {
+export function drop<T>(count: number) {
+  const fn: SyncOperation<T, Iterable<T>> = function *drop<T>(iterable: Iterable<T>): Iterable<T> {
     if (isAsyncIterable(iterable) && !isIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
-      Async.drop(count)
+      fn[GetAsync]()
     );
     let dropped = 0;
     for (const value of iterable) {
@@ -15,4 +16,10 @@ export function drop(count: number) {
       }
     }
   };
+  fn[Name] = "drop";
+  fn[Arguments] = [count];
+  fn[GetAsync] = () => Async.drop(count);
+  return fn;
 }
+drop[Name] = "drop";
+drop[AsyncFn] = Async.drop;

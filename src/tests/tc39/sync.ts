@@ -17,14 +17,14 @@ import {
   toArray
 } from "../../operations/sync";
 
-export interface IterableHelpersObject<T> extends Iterable<T> {
-  map?<O>(mapperFn: MapFn<T, O>): IterableHelpersObject<O>;
-  filter?(filterFn: FilterFn<T>): IterableHelpersObject<T>;
-  take?(limit: number): IterableHelpersObject<T>;
-  drop?(limit: number): IterableHelpersObject<T>;
-  asIndexedPairs?(): IterableHelpersObject<[number, T]>;
-  flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): IterableHelpersObject<O>;
-  reduce?<A>(reduceFn: ReduceFn<T, A>): A;
+export interface TC39IterableHelpersObject<T> extends Iterable<T> {
+  map?<O>(mapperFn: MapFn<T, O>): TC39IterableHelpersObject<O>;
+  filter?(filterFn: FilterFn<T>): TC39IterableHelpersObject<T>;
+  take?(limit: number): TC39IterableHelpersObject<T>;
+  drop?(limit: number): TC39IterableHelpersObject<T>;
+  asIndexedPairs?(): TC39IterableHelpersObject<[number, T]>;
+  flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): TC39IterableHelpersObject<O>;
+  reduce?<A>(reduceFn: ReduceFn<T, A>, initial: A): A;
   toArray?(): T[];
   forEach?(callbackFn: ForEachFn<T>): void;
   some?(filterFn: FilterFn<T>): boolean;
@@ -32,9 +32,9 @@ export interface IterableHelpersObject<T> extends Iterable<T> {
   find?(filterFn: FilterFn<T>): T | undefined;
 }
 
-export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): IterableHelpersObject<T> } {
+export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): TC39IterableHelpersObject<T> } {
 
-  function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => Omit<IterableEngineContext<unknown[], never | number>, "instance"> & { instance<T>(input: Iterable<T>): IterableHelpersObject<T> } {
+  function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => Omit<IterableEngineContext<unknown[], never | number>, "instance"> & { instance<T>(input: Iterable<T>): TC39IterableHelpersObject<T> } {
     if (typeof test !== "function") throw new Error();
   }
   assertFunction(test);
@@ -120,6 +120,19 @@ export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, 
   ok(naturalsArrayResult[2] === 2);
   ok(naturalsArrayResult[3] === 3);
   ok(naturalsArrayResult[4] === 4);
+  const naturalsArrayResultIterator = naturalsArrayOps.instance(naturals())[Symbol.iterator]();
+  const naturalsArrayResult0 = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResult0.value === 0);
+  const naturalsArrayResult1 = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResult1.value === 1);
+  const naturalsArrayResult2 = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResult2.value === 2);
+  const naturalsArrayResult3 = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResult3.value === 3);
+  const naturalsArrayResult4 = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResult4.value === 4);
+  const naturalsArrayResultDone = naturalsArrayResultIterator.next();
+  ok(naturalsArrayResultDone.done);
 
   const forEachLog: unknown[] = [];
   const forEachOps = test(drop(1), take(3), forEach((value) => forEachLog.push(value)));
@@ -128,8 +141,8 @@ export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, 
 
   const someOps = test(take(4), some(v => v > 1));
   ok(getThrownResult(someOps.instance(naturals())) === true);
-  const someOpsOneFalse = test(take(4), some(v => v === 1));
-  ok(getThrownResult(someOpsOneFalse.instance(naturals())) === true);
+  const someOpsOneTrue = test(take(4), some(v => v === 1));
+  ok(getThrownResult(someOpsOneTrue.instance(naturals())) === true);
 
   const everyOverOps = test(drop(1), take(4), every(v => v > 1));
   ok(getThrownResult(everyOverOps.instance(naturals())) === false); // false, first value is 1

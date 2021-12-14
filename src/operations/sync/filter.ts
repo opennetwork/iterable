@@ -1,4 +1,4 @@
-import { SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
@@ -10,10 +10,10 @@ function negateIfNeeded(negate: boolean, value: boolean): boolean {
   return negate ? !value : value;
 }
 
-export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = false): SyncOperation<T, IterableIterator<T>> {
-  return function *filter(iterable) {
+export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = false) {
+  const fn: SyncOperation<T, IterableIterator<T>> = function *filter(iterable) {
     if (isAsyncIterable(iterable) && !isIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
-      Async.filterNegatable(callbackFn)
+      fn[GetAsync]()
     );
     for (const value of iterable) {
       if (negateIfNeeded(negate, callbackFn(value))) {
@@ -21,10 +21,22 @@ export function filterNegatable<T>(callbackFn: FilterFn<T>, negate: boolean = fa
       }
     }
   };
+  fn[Name] = "filterNegatable";
+  fn[GetAsync] = () => Async.filterNegatable(callbackFn);
+  fn[Arguments] = [callbackFn, negate];
+  return fn;
 }
+filterNegatable[Name] = "filterNegatable";
+filterNegatable[AsyncFn] = Async.filterNegatable;
 
 export function filter<T, Is extends T>(callbackFn: FilterFn<T, Is>): SyncOperation<T, Iterable<Is>>;
 export function filter<T>(callbackFn: FilterFn<T>): SyncOperation<T, Iterable<T>>;
 export function filter<T>(callbackFn: FilterFn<T>): SyncOperation<T, Iterable<T>> {
-  return filterNegatable(callbackFn);
+  const fn = filterNegatable(callbackFn);
+  fn[Name] = "filter";
+  fn[GetAsync] = () => Async.filter(callbackFn);
+  fn[Arguments] = [callbackFn];
+  return fn;
 }
+filter[Name] = "filter";
+filter[AsyncFn] = Async.filter;

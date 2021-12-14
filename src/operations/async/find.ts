@@ -1,12 +1,16 @@
 import { filter, FilterFn } from "./filter";
-import { AsyncOperation } from "../operation";
+import { Arguments, AsyncOperation, Name } from "../operation";
 
-export function find<T>(callbackFn: FilterFn<T>): AsyncOperation<T, Promise<T | undefined>> {
+export function find<T>(callbackFn: FilterFn<T>) {
   const op = filter(callbackFn);
-  return async function (iterable: AsyncIterable<T>): Promise<T | undefined> {
+  const fn: AsyncOperation<T, Promise<T | undefined>> = async function (iterable: AsyncIterable<T>): Promise<T | undefined> {
     const iterator = op(iterable)[Symbol.asyncIterator]();
     const result = await iterator.next();
     await iterator.return?.();
     return result.value;
   };
+  fn[Name] = "find";
+  fn[Arguments] = [callbackFn];
+  return fn;
 }
+find[Name] = "find";

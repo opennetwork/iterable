@@ -1,9 +1,9 @@
-import { AsyncOperation } from "../operation";
+import { Arguments, AsyncOperation, Name } from "../operation";
 
 export type MapFn<T, O> = (value: T) => O;
 
-export function map<T, O>(callbackFn: MapFn<T, O>): AsyncOperation<T, AsyncIterable<O>> {
-  return async function *map(iterable) {
+export function map<T, O>(callbackFn: MapFn<T, O>) {
+  const fn: AsyncOperation<T, AsyncIterable<O>> = async function *map(iterable) {
     for await (const value of async(iterable)) {
       yield callbackFn(value);
     }
@@ -11,4 +11,8 @@ export function map<T, O>(callbackFn: MapFn<T, O>): AsyncOperation<T, AsyncItera
       yield * value;
     }
   };
+  fn[Name] = "map";
+  fn[Arguments] = [callbackFn];
+  return fn;
 }
+map[Name] = "map";

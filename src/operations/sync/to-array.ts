@@ -1,11 +1,18 @@
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
+import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 
-export function toArray() {
-  return function <T>(iterable: Iterable<T>): T[] {
+export function toArray<T>() {
+  const fn: SyncOperation<T, T[]> = function <T>(iterable: Iterable<T>): T[] {
     if (isAsyncIterable(iterable) && !isIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
-      Async.toArray()
+      fn[GetAsync]()
     );
     return Array.from(iterable);
   };
+  fn[Name] = "toArray";
+  fn[Arguments] = [];
+  fn[GetAsync] = () => Async.toArray();
+  return fn;
 }
+toArray[Name] = "toArray";
+toArray[AsyncFn] = Async.toArray;

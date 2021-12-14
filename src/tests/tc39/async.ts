@@ -1,44 +1,50 @@
 import {
   asIndexedPairs,
-  drop, every,
+  drop,
+  every,
   filter,
-  FilterFn, find,
-  flatMap, forEach,
+  FilterFn,
+  find,
+  flatMap,
+  forEach,
   ForEachFn,
   map,
-  MapFn, reduce,
-  ReduceFn, some,
-  take, toArray
-} from "../../operations/sync";
+  MapFn,
+  reduce,
+  ReduceFn,
+  some,
+  take,
+  toArray
+} from "../../operations/async";
 import { InputOperationsArray, IterableEngineContext, UnknownReturnedIterableError } from "../../engine/context";
 
-export interface AsyncIterableHelpersObject<T> extends AsyncIterable<T> {
-  map?<O>(mapperFn: MapFn<T, O>): AsyncIterableHelpersObject<O>;
-  filter?(filterFn: FilterFn<T>): AsyncIterableHelpersObject<T>;
-  take?(limit: number): AsyncIterableHelpersObject<T>;
-  drop?(limit: number): AsyncIterableHelpersObject<T>;
-  asIndexedPairs?(): AsyncIterableHelpersObject<[number, T]>;
-  flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): AsyncIterableHelpersObject<O>;
-  reduce?<A>(reduceFn: ReduceFn<T, A>): A;
-  toArray?(): T[];
-  forEach?(callbackFn: ForEachFn<T>): void;
-  some?(filterFn: FilterFn<T>): boolean;
-  every?(filterFn: FilterFn<T>): boolean;
-  find?(filterFn: FilterFn<T>): T | undefined;
+export interface TC39AsyncIterableHelpersObject<T> extends AsyncIterable<T> {
+  map?<O>(mapperFn: MapFn<T, O>): TC39AsyncIterableHelpersObject<O>;
+  filter?(filterFn: FilterFn<T>): TC39AsyncIterableHelpersObject<T>;
+  take?(limit: number): TC39AsyncIterableHelpersObject<T>;
+  drop?(limit: number): TC39AsyncIterableHelpersObject<T>;
+  asIndexedPairs?(): TC39AsyncIterableHelpersObject<[number, T]>;
+  flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): TC39AsyncIterableHelpersObject<O>;
+  reduce?<A>(reduceFn: ReduceFn<T, A>, initial: A): Promise<A>;
+  toArray?(): Promise<T[]>;
+  forEach?(callbackFn: ForEachFn<T>): Promise<void>;
+  some?(filterFn: FilterFn<T>): Promise<boolean>;
+  every?(filterFn: FilterFn<T>): Promise<boolean>;
+  find?(filterFn: FilterFn<T>): Promise<T | undefined>;
 }
 
-interface AsyncTC39IteratorHelpersFn<O extends InputOperationsArray, T> {
-  (...operations: O): Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): AsyncIterableHelpersObject<T> };
+export interface TC39AsyncIteratorHelpersFn<O extends InputOperationsArray, T> {
+  (...operations: O): Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(input: AsyncIterable<T> | Iterable<T>): TC39AsyncIterableHelpersObject<T> };
 }
 
-export interface AssertAsyncTC39IteratorHelpersFn<O extends InputOperationsArray = InputOperationsArray, T = unknown> {
-  (test: unknown): asserts test is AsyncTC39IteratorHelpersFn<O, T>;
+export interface AssertTC39AsyncIteratorHelpersFn<O extends InputOperationsArray = InputOperationsArray, T = unknown> {
+  (test: unknown): asserts test is TC39AsyncIteratorHelpersFn<O, T>;
 }
 
-export async function assertAsyncTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): Promise<(test: unknown) => asserts test is AsyncTC39IteratorHelpersFn<O, T>> {
+export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): Promise<AssertTC39AsyncIteratorHelpersFn<O, T>> {
   let error: unknown;
   try {
-    function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => Omit<IterableEngineContext<unknown[], never | number>, "instance"> & { instance<T>(input: Iterable<T>): AsyncIterableHelpersObject<T> } {
+    function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => ReturnType<TC39AsyncIteratorHelpersFn<O, unknown>> {
       if (typeof test !== "function") throw new Error();
     }
     assertFunction(test);
@@ -118,14 +124,19 @@ export async function assertAsyncTC39IteratorHelpersObject<O extends InputOperat
 
     const naturalsArrayOps = test(take(5), toArray());
     // toArray is an Iterable so is seen as a valid operation result
-    const naturalsArrayResult = await getThrownResult(naturalsArrayOps.instance(naturals()));
-    ok(Array.isArray(naturalsArrayResult));
-    ok(naturalsArrayResult.length === 5);
-    ok(naturalsArrayResult[0] === 0);
-    ok(naturalsArrayResult[1] === 1);
-    ok(naturalsArrayResult[2] === 2);
-    ok(naturalsArrayResult[3] === 3);
-    ok(naturalsArrayResult[4] === 4);
+    const naturalsArrayResultIterator = naturalsArrayOps.instance(naturals())[Symbol.asyncIterator]();
+    const naturalsArrayResult0 = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResult0.value === 0);
+    const naturalsArrayResult1 = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResult1.value === 1);
+    const naturalsArrayResult2 = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResult2.value === 2);
+    const naturalsArrayResult3 = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResult3.value === 3);
+    const naturalsArrayResult4 = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResult4.value === 4);
+    const naturalsArrayResultDone = await naturalsArrayResultIterator.next();
+    ok(naturalsArrayResultDone.done);
 
     const forEachLog: unknown[] = [];
     const forEachOps = test(drop(1), take(3), forEach((value) => forEachLog.push(value)));
@@ -134,8 +145,8 @@ export async function assertAsyncTC39IteratorHelpersObject<O extends InputOperat
 
     const someOps = test(take(4), some(v => v > 1));
     ok((await getThrownResult(someOps.instance(naturals()))) === true);
-    const someOpsOneFalse = test(take(4), some(v => v === 1));
-    ok((await getThrownResult(someOps.instance(naturals()))) === true);
+    const someOpsOneTrue = test(take(4), some(v => v === 1));
+    ok((await getThrownResult(someOpsOneTrue.instance(naturals()))) === true);
 
     const everyOverOps = test(drop(1), take(4), every(v => v > 1));
     ok(await getThrownResult(everyOverOps.instance(naturals())) === false); // false, first value is 1

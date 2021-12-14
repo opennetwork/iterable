@@ -1,10 +1,11 @@
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
+import { AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 
-export function asIndexedPairs() {
-  return function *asIndexedPairs<T>(iterable: Iterable<T>): Iterable<[number, T]> {
+export function asIndexedPairs<T>() {
+  const fn: SyncOperation<T, Iterable<[number, T]>> = function *asIndexedPairs<T>(iterable: Iterable<T>): Iterable<[number, T]> {
     if (isAsyncIterable(iterable) && !isIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
-      Async.asIndexedPairs()
+      fn[GetAsync]()
     );
     let index = -1;
     for (const value of iterable) {
@@ -12,4 +13,9 @@ export function asIndexedPairs() {
       yield [index, value];
     }
   };
+  fn[Name] = "asIndexedPairs";
+  fn[GetAsync] = () => Async.asIndexedPairs<T>();
+  return fn;
 }
+asIndexedPairs[Name] = "asIndexedPairs";
+asIndexedPairs[AsyncFn] = Async.asIndexedPairs;

@@ -1,15 +1,15 @@
-import { SyncOperation } from "../operation";
+import { Arguments, AsyncFn, GetAsync, Name, SyncOperation } from "../operation";
 import { map, MapFn } from "./map";
 import { isAsyncIterable, isIterable } from "../../async-like";
 import * as Async from "../async";
 
 export type FlatMapFn<T, O> = MapFn<T, Iterable<O>>;
 
-export function flatMap<T, O>(callbackFn: FlatMapFn<T, O>): SyncOperation<T, IterableIterator<O>> {
+export function flatMap<T, O>(callbackFn: FlatMapFn<T, O>) {
   const op = map(callbackFn);
-  return function *(iterable) {
+  const fn: SyncOperation<T, IterableIterator<O>> = function *(iterable) {
     if (isAsyncIterable(iterable) && !isIterable(iterable)) throw new Async.ExpectedAsyncOperationError(
-      Async.flatMap(callbackFn)
+      fn[GetAsync]()
     );
     for (const newIterable of op(iterable)) {
       for (const value of newIterable) {
@@ -17,4 +17,10 @@ export function flatMap<T, O>(callbackFn: FlatMapFn<T, O>): SyncOperation<T, Ite
       }
     }
   };
+  fn[Name] = "flatMap";
+  fn[Arguments] = [callbackFn];
+  fn[GetAsync] = () => Async.flatMap(callbackFn);
+  return fn;
 }
+flatMap[Name] = "flatMap";
+flatMap[AsyncFn] = Async.flatMap;

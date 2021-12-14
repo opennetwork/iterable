@@ -1,13 +1,17 @@
-import { AsyncOperation } from "../operation";
+import { Arguments, AsyncOperation, Name } from "../operation";
 import { map, MapFn } from "./map";
 
 export type FlatMapFn<T, O> = MapFn<T, Iterable<O>>;
 
-export function flatMap<T, O>(callbackFn: FlatMapFn<T, O>): AsyncOperation<T, AsyncIterable<O>> {
+export function flatMap<T, O>(callbackFn: FlatMapFn<T, O>) {
   const op = map(callbackFn);
-  return async function *(iterable) {
+  const fn: AsyncOperation<T, AsyncIterable<O>> = async function *(iterable) {
     for await (const newIterable of op(iterable)) {
       yield * newIterable;
     }
   };
+  fn[Name] = "flatMap";
+  fn[Arguments] = [callbackFn];
+  return fn;
 }
+flatMap[Name] = "flatMap";

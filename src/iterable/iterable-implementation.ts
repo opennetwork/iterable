@@ -1,45 +1,33 @@
 import { ExtendedIterable } from "./iterable";
 import {
   drain,
-  every,
-  except,
-  filter,
-  FilterFn,
   hasAny,
   map,
-  MapFn,
-  reduce,
-  ReduceFn,
-  some,
   union,
   arrayRetainer,
   retain,
   Retainer,
-  toArray,
   mask,
   skip,
-  FlatMapFn,
-  flatMap,
   maskReversible,
-  take,
   DistinctEqualFn,
   distinct,
   group,
   GroupFn,
-  hooks, ForEachFn, forEach
+  hooks,
 } from "../core";
 import { IterableTuple } from "./iterable-tuple";
 import { IterableTypeReferenceMap } from "./reference-map-type";
-import { createIterableEngineContext, IterableEngineContext } from "../engine/context";
 import { constructTC39IteratorHelpers } from "../tc39/construct";
 import * as Sync from "../operations/sync";
+import { TC39SyncIteratorHelpers } from "../tc39/sync";
 
-export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
+export class ExtendedIterableImplementation<T> extends TC39SyncIteratorHelpers<T> implements ExtendedIterable<T> {
 
   private readonly iterable: Iterable<T>;
-  private context: IterableEngineContext<((input: Iterable<T>) => Iterable<T>)[], never | number>;
 
   constructor(iterable: Iterable<T>, protected referenceMap: IterableTypeReferenceMap) {
+    super();
     this.iterable = iterable;
     constructTC39IteratorHelpers(this, Sync);
   }
@@ -52,42 +40,12 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     return hasAny(this);
   }
 
-  every(fn: FilterFn<T, this, this>): boolean {
-    return every(this, fn, this, this);
-  }
-
-  some(fn: FilterFn<T, this, this>): boolean {
-    return some(this, fn, this, this);
-  }
-
-  reduce<Accumulator = T>(fn: ReduceFn<T, this, this, Accumulator>, initialValue?: Accumulator): Accumulator {
-    return reduce(this, fn, initialValue, this, this);
-  }
-
   retain(retainer: Retainer<T> = arrayRetainer()) {
     return this.referenceMap.extendedIterable(retain(this, retainer));
   }
 
-  map<O>(fn: MapFn<T, O, this, this>): ExtendedIterable<O> {
-    return this.referenceMap.extendedIterable(map(this, fn, this, this));
-  }
-
-  flatMap<O>(fn: FlatMapFn<T, O, this, this>): ExtendedIterable<O> {
-    return this.referenceMap.extendedIterable(
-      flatMap(this, fn, this, this)
-    );
-  }
-
   union<O>(other: Iterable<O>): ExtendedIterable<T | O> {
     return this.referenceMap.extendedIterable(union(this, other));
-  }
-
-  filter(fn: FilterFn<T, this, this>): ExtendedIterable<T> {
-    return this.referenceMap.extendedIterable(filter(this, fn, this, this));
-  }
-
-  except(fn: FilterFn<T, this, this>): ExtendedIterable<T> {
-    return this.referenceMap.extendedIterable(except(this, fn, this, this));
   }
 
   mask(maskIterable: Iterable<boolean>): ExtendedIterable<T> {
@@ -100,10 +58,6 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
 
   skip(count: number): ExtendedIterable<T> {
     return this.mask(skip(count));
-  }
-
-  take(count: number): ExtendedIterable<T> {
-    return this.maskReversible(take(count), true);
   }
 
   distinct(equalityFn?: DistinctEqualFn<T>): ExtendedIterable<T> {
@@ -125,14 +79,6 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
     );
   }
 
-  forEach(fn: ForEachFn<T, this, this>): void {
-    forEach(this, fn, this, this);
-  }
-
-  toArray() {
-    return toArray(this);
-  }
-
   toTuple<S extends number>(size: S): IterableTuple<T, S> {
     return this.referenceMap.iterableTuple(this, size);
   }
@@ -149,7 +95,5 @@ export class ExtendedIterableImplementation<T> implements ExtendedIterable<T> {
   [Symbol.iterator]() {
     return this.iterable[Symbol.iterator]();
   }
-
-
 
 }

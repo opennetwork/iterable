@@ -20,6 +20,10 @@ import {
 import { TC39IteratorHelpers } from "./construct";
 import * as Async from "../operations/async";
 
+export interface TC39AsyncIteratorHelpers<T> {
+
+}
+
 export class TC39AsyncIteratorHelpers<T> extends TC39IteratorHelpers implements TC39AsyncIterableHelpersObject<T> {
 
   constructor() {

@@ -3,83 +3,36 @@ import {
   FilterFn,
   ForEachFn,
   MapFn,
-  reduce,
   ReduceFn,
-  some,
-  asIndexedPairs,
-  drop,
-  every,
-  filter,
-  find,
-  flatMap,
-  forEach,
-  map,
-  take,
-  toArray
+  GuardFilterFn
 } from "../operations/sync";
-import { TC39IteratorHelpers } from "./construct";
+import { createTC39IteratorHelpersConstructor } from "./construct";
 import * as Sync from "../operations/sync";
 
 export interface TC39SyncIteratorHelpers<T> {
-
+  map<O>(mapperFn: MapFn<T, O>): TC39SyncIteratorHelpers<O>;
+  filter<Is extends T>(filterFn: GuardFilterFn<T, Is>): TC39SyncIteratorHelpers<Is>;
+  filter(filterFn: FilterFn<T>): TC39SyncIteratorHelpers<T>;
+  take(limit: number): TC39SyncIteratorHelpers<T>;
+  drop(limit: number): TC39SyncIteratorHelpers<T>;
+  asIndexedPairs(): TC39SyncIteratorHelpers<[number, T]>;
+  flatMap<O>(mapperFn: MapFn<T, Iterable<O>>): TC39SyncIteratorHelpers<O>;
+  reduce<A>(reduceFn: ReduceFn<T, A>, initial: A): A;
+  toArray(): T[];
+  forEach(callbackFn: ForEachFn<T>): void;
+  some(filterFn: FilterFn<T>): boolean;
+  every(filterFn: FilterFn<T>): boolean;
+  find(filterFn: FilterFn<T>): T | undefined;
 }
 
-export class TC39SyncIteratorHelpers<T> extends TC39IteratorHelpers implements TC39IterableHelpersObject<T> {
+export class TC39SyncIteratorHelpers<T> extends createTC39IteratorHelpersConstructor(Sync) implements TC39IterableHelpersObject<T> {
 
   constructor() {
-    super(Sync);
+    super();
   }
 
   *[Symbol.iterator](): Iterator<T> {
 
-  }
-
-  asIndexedPairs(): TC39IterableHelpersObject<[number, T]> {
-    return asIndexedPairs<T>()(this);
-  }
-
-  drop(limit: number): TC39IterableHelpersObject<T> {
-    return drop<T>(limit)(this);
-  }
-
-  every(filterFn: FilterFn<T>): boolean {
-    return every(filterFn)(this);
-  }
-
-  filter(filterFn: FilterFn<T>): TC39IterableHelpersObject<T> {
-    return filter(filterFn)(this);
-  }
-
-  find(filterFn: FilterFn<T>): T | undefined {
-    return find(filterFn)(this);
-  }
-
-  flatMap<O>(mapperFn: MapFn<T, Iterable<O>>): TC39IterableHelpersObject<O> {
-    return flatMap(mapperFn)(this);
-  }
-
-  forEach(callbackFn: ForEachFn<T>): void {
-    return forEach(callbackFn)(this);
-  }
-
-  map<O>(mapperFn: MapFn<T, O>): TC39IterableHelpersObject<O> {
-    return map(mapperFn)(this);
-  }
-
-  reduce<A>(reduceFn: ReduceFn<T, A>, initial: A): A {
-    return reduce(reduceFn, initial)(this);
-  }
-
-  some(filterFn: FilterFn<T>): boolean {
-    return some(filterFn)(this);
-  }
-
-  take(limit: number): TC39IterableHelpersObject<T> {
-    return take<T>(limit)(this);
-  }
-
-  toArray(): T[] {
-    return toArray<T>()(this);
   }
 
 }

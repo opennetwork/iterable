@@ -13,9 +13,27 @@ export class TC39IteratorHelpers {
   }
 }
 
-export function constructTC39IteratorHelpers(that: object, operations: Record<string, UnknownOperation | unknown>) {
-  const prototype = Object.getPrototypeOf(that);
-  const emptyPrototype = prototype === Object.getPrototypeOf({});
+export interface TC39IteratorHelpersConstructor<T> {
+  new (): T;
+  prototype: T;
+}
+
+export function createTC39IteratorHelpersConstructor<T extends object>(operations: Record<string, UnknownOperation | unknown>): TC39IteratorHelpersConstructor<T> {
+  const constructor: Function & { prototype?: T } = function TC39IteratorHelpersConstructor() {};
+  constructor.prototype = Object.create({});
+  constructTC39IteratorHelpers<T>(constructor.prototype, operations);
+  assertConstructor(constructor);
+  return constructor;
+  function assertConstructor(value: unknown): asserts value is TC39IteratorHelpersConstructor<T> {
+    /* c8 ignore start */
+    if (value !== constructor) {
+      throw new Error("Expected constructor");
+    }
+    /* c8 ignore end */
+  }
+}
+
+export function constructTC39IteratorHelpers<T extends object>(that: unknown, operations: Record<string, UnknownOperation | unknown>): asserts that is T {
   for (const operation of Object.values(operations)) {
     if (!isUnknownOperation(operation)) continue;
     if (operation[Internal]) continue;
@@ -30,6 +48,8 @@ export function constructTC39IteratorHelpers(that: object, operations: Record<st
       return;
     }
     that[name] = function iterableOperation(this: unknown, ...args: unknown[]): unknown {
+      const prototype = Object.getPrototypeOf(this);
+      const emptyPrototype = prototype === Object.getPrototypeOf({});
       const fn = operation(...args);
       if (!isCallableOperation(fn)) throw new Error("Expected function return");
       if (!isOperationIterable(this)) throw new Error("Expected iterable this type");

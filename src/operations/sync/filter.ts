@@ -5,8 +5,8 @@ import * as Async from "../async";
 export interface FilterFn<T, Is extends T = T> {
   (value: T): boolean;
 }
-export interface GuardFilterFn<T, Is extends T = T> {
-  <Iz extends Is>(value: T): value is Iz;
+export interface GuardFilterFn<T, Is extends T> {
+  (value: T): value is Is;
 }
 
 function negateIfNeeded(negate: boolean, value: boolean): boolean {

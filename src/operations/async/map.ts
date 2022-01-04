@@ -1,6 +1,8 @@
 import { Arguments, AsyncOperation, Name } from "../operation";
 
-export type MapFn<T, O> = (value: T) => O;
+export interface MapFn<T, O> {
+  (value: T): O | Promise<O>;
+}
 
 export function map<T, O>(callbackFn: MapFn<T, O>) {
   const fn: AsyncOperation<T, AsyncIterable<O>> = async function *map(iterable) {

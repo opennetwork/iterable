@@ -1,11 +1,9 @@
 import {
   InputOperationsArray,
-  isIterableEngineContext,
   IterableEngineContext,
   UnknownReturnedIterableError
 } from "../../engine/context";
 import {
-  asIndexedPairs,
   drop, every,
   filter, FilterFn, find,
   flatMap,
@@ -24,7 +22,6 @@ export interface TC39IterableHelpersObject<T> extends Iterable<T> {
   filter?(filterFn: FilterFn<T>): TC39IterableHelpersObject<T>;
   take?(limit: number): TC39IterableHelpersObject<T>;
   drop?(limit: number): TC39IterableHelpersObject<T>;
-  asIndexedPairs?(): TC39IterableHelpersObject<[number, T]>;
   flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): TC39IterableHelpersObject<O>;
   reduce?<A>(reduceFn: ReduceFn<T, A>, initial: A): A;
   toArray?(): T[];
@@ -82,19 +79,6 @@ export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, 
   ok(dropNaturalsResultIterator.next().value === 3); //  {value: 3, done: false};
   ok(dropNaturalsResultIterator.next().value === 4); //  {value: 4, done: false};
   ok(dropNaturalsResultIterator.next().value === 5); //  {value: 5, done: false};
-
-  const asIndexedPairsOps = test(asIndexedPairs());
-  const asIndexedPairsResult = [...asIndexedPairsOps.instance(["a", "b", "c"])];
-  ok(asIndexedPairsResult.length === 3);
-  ok(Array.isArray(asIndexedPairsResult[0]));
-  ok(asIndexedPairsResult[0][0] === 0);
-  ok(asIndexedPairsResult[0][1] === "a");
-  ok(Array.isArray(asIndexedPairsResult[1]));
-  ok(asIndexedPairsResult[1][0] === 1);
-  ok(asIndexedPairsResult[1][1] === "b");
-  ok(Array.isArray(asIndexedPairsResult[2]));
-  ok(asIndexedPairsResult[2][0] === 2);
-  ok(asIndexedPairsResult[2][1] === "c");
 
   const flatMapOps = test(flatMap((value: string) => value.split(" ")));
   const flatMapResultIterator = flatMapOps.instance(["It's Sunny in", "", "California"])[Symbol.iterator]();

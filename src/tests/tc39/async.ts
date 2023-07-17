@@ -1,5 +1,4 @@
 import {
-  asIndexedPairs,
   drop,
   every,
   filter,
@@ -24,7 +23,6 @@ export interface TC39AsyncIterableHelpersObject<T> extends AsyncIterable<T> {
   filter?(filterFn: FilterFn<T>): TC39AsyncIterableHelpersObject<T>;
   take?(limit: number): TC39AsyncIterableHelpersObject<T>;
   drop?(limit: number): TC39AsyncIterableHelpersObject<T>;
-  asIndexedPairs?(): TC39AsyncIterableHelpersObject<[number, T]>;
   flatMap?<O>(mapperFn: MapFn<T, Iterable<O>>): TC39AsyncIterableHelpersObject<O>;
   reduce?<A>(reduceFn: ReduceFn<T, A>, initial: A): Promise<A>;
   toArray?(): Promise<T[]>;
@@ -91,21 +89,6 @@ export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperat
     ok((await dropNaturalsResultIterator.next()).value === 3); //  {value: 3, done: false};
     ok((await dropNaturalsResultIterator.next()).value === 4); //  {value: 4, done: false};
     ok((await dropNaturalsResultIterator.next()).value === 5); //  {value: 5, done: false};
-
-    const asIndexedPairsOps = test(asIndexedPairs());
-    const asIndexedPairsResultIterator = asIndexedPairsOps.instance(["a", "b", "c"])[Symbol.asyncIterator]();
-    const asIndexedPairsResult0 = await asIndexedPairsResultIterator.next();
-    ok(Array.isArray(asIndexedPairsResult0.value));
-    ok(asIndexedPairsResult0.value[0] === 0);
-    ok(asIndexedPairsResult0.value[1] === "a");
-    const asIndexedPairsResult1 = await asIndexedPairsResultIterator.next();
-    ok(Array.isArray(asIndexedPairsResult1.value));
-    ok(asIndexedPairsResult1.value[0] === 1);
-    ok(asIndexedPairsResult1.value[1] === "b");
-    const asIndexedPairsResult2 = await asIndexedPairsResultIterator.next();
-    ok(Array.isArray(asIndexedPairsResult2.value));
-    ok(asIndexedPairsResult2.value[0] === 2);
-    ok(asIndexedPairsResult2.value[1] === "c");
 
     const flatMapOps = test(flatMap((value: string) => value.split(" ")));
     const flatMapResultIterator = flatMapOps.instance(["It's Sunny in", "", "California"])[Symbol.asyncIterator]();

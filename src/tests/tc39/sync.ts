@@ -17,6 +17,7 @@ import {
   toArray
 } from "../../operations/sync";
 import { isIterable } from "../../async-like";
+import { TC39AsyncIteratorHelpersFn } from "./async";
 
 export interface TC39IterableHelpersObject<T> extends Iterable<T> {
   map?<O>(mapperFn: MapFn<T, O>): TC39IterableHelpersObject<O>;
@@ -33,12 +34,14 @@ export interface TC39IterableHelpersObject<T> extends Iterable<T> {
   find?(filterFn: FilterFn<T>): T | undefined;
 }
 
-export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): asserts test is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): TC39IterableHelpersObject<T> } {
+export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, T>(input: unknown): asserts input is (...operations: O) => Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(): TC39IterableHelpersObject<T> } {
 
-  function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => Omit<IterableEngineContext<unknown[], never | number>, "instance"> & { instance<T>(input: Iterable<T>): TC39IterableHelpersObject<T> } {
-    if (typeof test !== "function") throw new Error();
+  type HelperFn = <T = unknown, O = unknown, A extends InputOperationsArray<T, O> = InputOperationsArray<T, O>>(...operations: A) => (Omit<IterableEngineContext<A, never | number>, "instance"> & { instance<T>(input: Iterable<T>): TC39IterableHelpersObject<T> });
+  function assertFunction(value: unknown): asserts value is HelperFn {
+    if (typeof value !== "function") throw new Error();
   }
-  assertFunction(test);
+  assertFunction(input);
+  const test: HelperFn = input;
 
   function* naturals() {
     let i = 0;
@@ -136,21 +139,21 @@ export function assertTC39IteratorHelpersObject<O extends InputOperationsArray, 
   ok(naturalsArrayResultDone.done);
 
   const forEachLog: unknown[] = [];
-  const forEachOps = test(drop(1), take(3), forEach((value) => forEachLog.push(value)));
+  const forEachOps = test<number>(drop(1), take(3), forEach((value) => forEachLog.push(value)));
   getThrownResult(forEachOps.instance(naturals()));
   ok(forEachLog.join(", ") === "1, 2, 3"); // "1, 2, 3"
 
-  const someOps = test(take(4), some(v => v > 1));
+  const someOps = test<number>(take(4), some(v => v > 1));
   ok(getThrownResult(someOps.instance(naturals())) === true);
   const someOpsOneTrue = test(take(4), some(v => v === 1));
   ok(getThrownResult(someOpsOneTrue.instance(naturals())) === true);
 
-  const everyOverOps = test(drop(1), take(4), every(v => v > 1));
+  const everyOverOps = test<number>(drop(1), take(4), every(v => v > 1));
   ok(getThrownResult(everyOverOps.instance(naturals())) === false); // false, first value is 1
-  const everyOverEqualOps = test(drop(1), take(4), every(v => v >= 1));
+  const everyOverEqualOps = test<number>(drop(1), take(4), every(v => v >= 1));
   ok(getThrownResult(everyOverEqualOps.instance(naturals())) === true);
 
-  const findOps = test(find((value: number) => value > 1));
+  const findOps = test<number>(find((value: number) => value > 1));
   ok(getThrownResult(findOps.instance(naturals())) === 2);
 
   function getThrownResult(iterable: unknown) {

@@ -10,7 +10,7 @@
     ".": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc --declaration && npm run tslint && node correct-import-extensions.js",
+    "build": "tsc --declaration && node correct-import-extensions.js",
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build",
@@ -34,6 +34,6 @@
     "esm": "^3.2.25",
     "filehound": "^1.17.5",
     "tslint": "^6.1.3",
-    "typescript": "^4.5.3"
+    "typescript": "^5.1.6"
   }
 }

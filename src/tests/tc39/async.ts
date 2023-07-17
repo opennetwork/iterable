@@ -34,21 +34,23 @@ export interface TC39AsyncIterableHelpersObject<T> extends AsyncIterable<T> {
   find?(filterFn: FilterFn<T>): Promise<T | undefined>;
 }
 
-export interface TC39AsyncIteratorHelpersFn<O extends InputOperationsArray, T> {
-  (...operations: O): Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(input: AsyncIterable<T> | Iterable<T>): TC39AsyncIterableHelpersObject<T> };
+export interface TC39AsyncIteratorHelpersFn<T> {
+  <O extends InputOperationsArray>(...operations: O): Omit<IterableEngineContext<O, never | number>, "instance"> & { instance(input: AsyncIterable<T> | Iterable<T>): TC39AsyncIterableHelpersObject<T> };
 }
 
 export interface AssertTC39AsyncIteratorHelpersFn<O extends InputOperationsArray = InputOperationsArray, T = unknown> {
-  (test: unknown): asserts test is TC39AsyncIteratorHelpersFn<O, T>;
+  (test: unknown): asserts test is TC39AsyncIteratorHelpersFn<T>;
 }
 
-export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperationsArray, T>(test: unknown): Promise<AssertTC39AsyncIteratorHelpersFn<O, T>> {
+export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperationsArray, T>(input: unknown): Promise<AssertTC39AsyncIteratorHelpersFn<O, T>> {
   let error: unknown;
   try {
-    function assertFunction(value: unknown): asserts value is (...operations: unknown[]) => ReturnType<TC39AsyncIteratorHelpersFn<O, unknown>> {
-      if (typeof test !== "function") throw new Error();
+    type HelperFn = <T = unknown, O = unknown, A extends InputOperationsArray<T, O> = InputOperationsArray<T, O>>(...operations: A) => ReturnType<TC39AsyncIteratorHelpersFn<T>>;
+    function assertFunction(value: unknown): asserts value is HelperFn {
+      if (typeof value !== "function") throw new Error();
     }
-    assertFunction(test);
+    assertFunction(input);
+    const test: HelperFn = input;
 
     function* naturals() {
       let i = 0;
@@ -146,24 +148,24 @@ export async function assertTC39AsyncIteratorHelpersObject<O extends InputOperat
     await getThrownResult(forEachOps.instance(naturals()));
     ok(forEachLog.join(", ") === "1, 2, 3"); // "1, 2, 3"
 
-    const someOps = test(take(4), some(v => v > 1));
+    const someOps = test<number>(take(4), some(v => v > 1));
     ok((await getThrownResult(someOps.instance(naturals()))) === true);
     const someOpsOneTrue = test(take(4), some(v => v === 1));
     ok((await getThrownResult(someOpsOneTrue.instance(naturals()))) === true);
 
-    const everyOverOps = test(drop(1), take(4), every(v => v > 1));
+    const everyOverOps = test<number>(drop(1), take(4), every(v => v > 1));
     ok(await getThrownResult(everyOverOps.instance(naturals())) === false); // false, first value is 1
-    const everyOverEqualOps = test(drop(1), take(4), every(v => v >= 1));
+    const everyOverEqualOps = test<number>(drop(1), take(4), every(v => v >= 1));
     ok(await getThrownResult(everyOverEqualOps.instance(naturals())) === true);
 
-    const findOps = test(find((value: number) => value > 1));
+    const findOps = test<number>(find((value: number) => value > 1));
     ok(await getThrownResult(findOps.instance(naturals())) === 2);
   } catch (caught) {
     error = caught;
   }
 
-  return (inner: unknown) => {
-    if (inner !== test) throw new Error("Unexpected value");
+  return (inner): asserts inner is TC39AsyncIteratorHelpersFn<T> => {
+    if (inner !== input) throw new Error("Unexpected value");
     if (error) throw error;
   };
 

@@ -6,7 +6,8 @@ import { ExpectedAsyncOperationError } from "../operations/async";
 export interface InputFunction<T = unknown, O = unknown> {
   (input: T): O;
 }
-export type InputOperationsArray<T = unknown, O = unknown> = [InputFunction<T, O>, ...InputFunction<T, O>[]];
+type InputOperation<T = unknown, O = unknown> = AsyncOperation<T, O> | SyncOperation<T, O> | InputFunction<T, O>;
+export type InputOperationsArray<T = unknown, O = unknown> = [InputOperation<T, O>, ...InputOperation<T, O>[]];
 
 type OperationReturnType<V> =
   V extends Iterable<infer Z> ?

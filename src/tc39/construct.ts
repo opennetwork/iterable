@@ -18,9 +18,19 @@ export interface TC39IteratorHelpersConstructor<T> {
   prototype: T;
 }
 
-export function createTC39IteratorHelpersConstructor<T extends object>(operations: Record<string, UnknownOperation | unknown>): TC39IteratorHelpersConstructor<T> {
-  const constructor: Function & { prototype?: T } = function TC39IteratorHelpersConstructor() {};
+interface Constructable {
+  new(): Partial<AsyncIterable<unknown> & Iterable<unknown>>;
+  prototype?: Record<string, unknown>;
+}
+
+function createConstructor<T extends object>() {
+  const constructor = function TC39IteratorHelpersConstructor() {};
   constructor.prototype = Object.create({});
+  return constructor as unknown as Constructable;
+}
+
+export function createTC39IteratorHelpersConstructor<T extends object>(operations: Record<string, UnknownOperation | unknown>): TC39IteratorHelpersConstructor<T> {
+  const constructor = createConstructor<T>();
   constructTC39IteratorHelpers<T>(constructor.prototype, operations);
   assertConstructor(constructor);
   return constructor;
@@ -34,12 +44,12 @@ export function createTC39IteratorHelpersConstructor<T extends object>(operation
 }
 
 export function constructTC39IteratorHelpers<T extends object>(that: unknown, operations: Record<string, UnknownOperation | unknown>): asserts that is T {
-  const operationNames: string[] = [];
+  const Constructor = createConstructor<T>();
+  const prototype = Constructor.prototype;
   for (const operation of Object.values(operations)) {
     if (!isUnknownOperation(operation)) continue;
     if (operation[Internal]) continue;
     defineOperation(operation);
-    operationNames.push(operation[Name]);
   }
   function isUnknownOperation(operation: unknown): operation is UnknownOperation {
     return typeof operation === "function";
@@ -49,14 +59,8 @@ export function constructTC39IteratorHelpers<T extends object>(that: unknown, op
     if (!isOperationNamed(that, name)) {
       return;
     }
-    // if (that[name]) {
-    //   // Retain original implementation if it exists
-    //   // Maybe we're trying to polyfill where it now exists!! Exciting times
-    //   return;
-    // }
-    that[name] = function iterableOperation(this: unknown, ...args: unknown[]): unknown {
+    prototype[name] = function iterableOperation(this: unknown, ...args: unknown[]): unknown {
       const prototype = Object.getPrototypeOf(this);
-      const emptyPrototype = prototype === Object.getPrototypeOf({});
       const fn = operation(...args);
       if (!isCallableOperation(fn)) throw new Error("Expected function return");
       if (!isOperationIterable(this)) throw new Error("Expected iterable this type");
@@ -67,42 +71,37 @@ export function constructTC39IteratorHelpers<T extends object>(that: unknown, op
       if (!isOperationIterable(returned)) {
         throw new Error("Expected iterable return type");
       }
-      const thisThat = this;
-      const proxy = new Proxy(this, {
-        get(target: unknown, p: string | symbol): unknown {
-          assertsThat(thisThat);
-          if (typeof p !== "string" || !operationNames.includes(p)) {
-            return thisThat[p];
-          }
-          const fn = thisThat[p];
-          assertsFn(fn);
-          return function(this: unknown, ...args: unknown[]) {
-            return fn.call(
-              this === proxy ? returned : this,
-              ...args
-            );
-          };
+      if (isReturnedOperation(returned)) {
+        return returned;
+      }
+      const extendable = new Constructor();
+      extendable[Symbol.iterator] = returned[Symbol.iterator]?.bind(returned);
+      extendable[Symbol.asyncIterator] = returned[Symbol.asyncIterator]?.bind(returned);
+      return extendable;
 
-          function assertsThat(value: unknown): asserts value is Record<string | symbol, unknown> {
-            if (!value) {
-              throw new Error("Expected value");
-            }
-          }
-          function assertsFn(value: unknown): asserts value is (...args: unknown[]) => unknown {
-            assertsThat(typeof value === "function");
-          }
-        }
-      });
-      return proxy;
+      function isReturnedOperation(returned: unknown) {
+        return isRecord(returned) && returned[name];
+      }
 
-      function isOperationIterable(returned: unknown): returned is (Iterable<unknown> | AsyncIterable<unknown>) & { [Operations]?: unknown[] } {
+      function isRecord(value: unknown): value is Record<string, unknown> {
+        return !!value;
+      }
+
+      function isOperationIterable(returned: unknown): returned is Partial<Iterable<unknown> & AsyncIterable<unknown>> & { [Operations]?: unknown[] } {
         return isAsyncIterable(returned) || isIterable(returned);
       }
 
-      function isCallableOperation<I>(fn: unknown): fn is (input: Iterable<unknown> | AsyncIterable<unknown>) => unknown {
+      function isCallableOperation<I>(fn: unknown): fn is (input: unknown) => unknown {
         return typeof fn === "function";
       }
     };
+
+    if (that[name]) {
+      // Retain original implementation if it exists
+      // Maybe we're trying to polyfill where it now exists!! Exciting times
+      return;
+    }
+    Object.assign(that, { [name]: prototype[name] });
 
     function isOperationNamed<N extends string>(value: unknown, name: N): value is Record<N, (this: unknown, ...args: unknown[]) => unknown> {
       return !!name;

@@ -25,7 +25,7 @@
     "watch": "tsc -w",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
     "prepublishOnly": "npm run build",
-    "test": "yarn build && node dist/tests/index.js",
+    "test": "yarn build && node --enable-source-maps dist/tests/index.js",
     "example:server": "yarn build && node examples/node-server.js",
     "example:view": "yarn build && node examples/view.js",
     "coverage": "c8 yarn test"

@@ -15,7 +15,6 @@ export interface TC39SyncIteratorHelpers<T> {
   filter(filterFn: FilterFn<T>): TC39SyncIteratorHelpers<T>;
   take(limit: number): TC39SyncIteratorHelpers<T>;
   drop(limit: number): TC39SyncIteratorHelpers<T>;
-  asIndexedPairs(): TC39SyncIteratorHelpers<[number, T]>;
   flatMap<O>(mapperFn: MapFn<T, Iterable<O>>): TC39SyncIteratorHelpers<O>;
   reduce<A>(reduceFn: ReduceFn<T, A>, initial: A): A;
   toArray(): T[];

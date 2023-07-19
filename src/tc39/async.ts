@@ -15,7 +15,6 @@ export interface TC39AsyncIteratorHelpers<T> {
   filter(filterFn: FilterFn<T>): TC39AsyncIteratorHelpers<T>;
   take(limit: number): TC39AsyncIteratorHelpers<T>;
   drop(limit: number): TC39AsyncIteratorHelpers<T>;
-  asIndexedPairs(): TC39AsyncIteratorHelpers<[number, T]>;
   flatMap<O>(mapperFn: MapFn<T, Iterable<O>>): TC39AsyncIteratorHelpers<O>;
   reduce<A>(reduceFn: ReduceFn<T, A>, initial: A): Promise<A>;
   toArray(): Promise<T[]>;

@@ -5,7 +5,7 @@ import {
   MapFn,
   ReduceFn,
 } from "../operations/async";
-import { createTC39IteratorHelpersConstructor } from "./construct";
+import { constructTC39IteratorHelpers, createTC39IteratorHelpersConstructor } from "./construct";
 import * as Async from "../operations/async";
 import { GuardFilterFn } from "../operations/sync";
 
@@ -34,4 +34,8 @@ export class TC39AsyncIteratorHelpers<T> extends createTC39IteratorHelpersConstr
 
   }
 
+}
+
+export function applyTC39AsyncIteratorHelpers<T, Z extends AsyncIterable<T>>(that: Z): asserts that is Z & TC39AsyncIteratorHelpers<T> {
+  return constructTC39IteratorHelpers(that, Async);
 }

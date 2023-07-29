@@ -2,7 +2,8 @@
     "compilerOptions": {
         "module": "esnext",
         "lib": [
-            "esnext"
+            "esnext",
+            "dom"
         ],
         "types": [
             "node"

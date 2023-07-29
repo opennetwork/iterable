@@ -1,69 +1,90 @@
 import FileHound from "filehound";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { promisify } from "util";
 //
 // const packages = await FileHound.create()
-//     .paths(`packages`)
-//     .directory()
-//     .depth(1)
-//     .find();
-//
-// const paths = packages.map(packageName => `${packageName}/lib`)
+//   .paths(`packages`)
+//   .directory()
+//   .depth(1)
+//   .find();
 
-const paths = ['dist'];
+const buildPaths = ["dist"];
 
-for (const packagePath of paths) {
+for (const buildPath of buildPaths) {
     const filePaths = await FileHound.create()
-        .paths(packagePath)
+        .paths(buildPath)
         .discard("node_modules")
         .ext("js")
-        .find()
+        .find();
 
     await Promise.all(
-        filePaths.map(
-            async filePath => {
+        filePaths.map(async (filePath) => {
+            const initialContents = await fs.readFile(filePath, "utf-8");
 
-                let contents = await promisify(fs.readFile)(
-                    filePath,
-                    "utf-8"
-                );
+            const statements = initialContents.match(
+                /(?:(?:import|export)(?: .+ from)? ".+";|(?:import\(".+"\)))/g
+            );
 
-                const statements = contents.match(/(import|export)( .+ from)? ".+";/g);
-
-                if (!statements) {
-                    return;
-                }
-
-                await Promise.all(
-                    statements.map(
-                        async statement => {
-                            const url = statement.match(/"(.+)";/)[1];
-                            if (url.indexOf(".") !== 0) {
-                                return;
-                            }
-                            const [stat, indexStat] = await Promise.all([
-                                promisify(fs.stat)(path.resolve(path.dirname(filePath), url + ".js")).catch(() => {}),
-                                promisify(fs.stat)(path.resolve(path.dirname(filePath), url + "/index.js")).catch(() => {})
-                            ]);
-                            if (stat && stat.isFile()) {
-                                contents = contents.replace(
-                                    statement,
-                                    statement.replace(url, url + ".js")
-                                );
-                            } else if (indexStat && indexStat.isFile()) {
-                                contents = contents.replace(
-                                    statement,
-                                    statement.replace(url, url + "/index.js")
-                                );
-                            }
-                        }
-                    )
-                );
-
-                await promisify(fs.writeFile)(filePath, contents, "utf-8");
-
+            if (!statements) {
+                return;
             }
-        )
+
+            const importMap = process.env.IMPORT_MAP
+                ? JSON.parse(await fs.readFile(process.env.IMPORT_MAP, "utf-8"))
+                : undefined;
+            const contents = await statements.reduce(
+                async (contentsPromise, statement) => {
+                    const contents = await contentsPromise;
+                    const url = statement.match(/"(.+)"/)[1];
+                    if (importMap?.imports?.[url]) {
+                        const replacement = importMap.imports[url];
+                        if (!replacement.includes("./src")) {
+                            return contents.replace(
+                                statement,
+                                statement.replace(url, replacement)
+                            );
+                        }
+                        const shift = filePath
+                            .split("/")
+                            // Skip top folder + file
+                            .slice(2)
+                            // Replace with shift up directory
+                            .map(() => "..")
+                            .join("/");
+                        return contents.replace(
+                            statement,
+                            statement.replace(
+                                url,
+                                replacement.replace("./src", shift).replace(/\.tsx?$/, ".js")
+                            )
+                        );
+                    } else {
+                        return contents.replace(statement, await getReplacement(url));
+                    }
+
+                    async function getReplacement(url) {
+                        const [stat, indexStat] = await Promise.all([
+                            fs
+                                .stat(path.resolve(path.dirname(filePath), url + ".js"))
+                                .catch(() => {}),
+                            fs
+                                .stat(path.resolve(path.dirname(filePath), url + "/index.js"))
+                                .catch(() => {}),
+                        ]);
+
+                        if (stat && stat.isFile()) {
+                            return statement.replace(url, url + ".js");
+                        } else if (indexStat && indexStat.isFile()) {
+                            return statement.replace(url, url + "/index.js");
+                        }
+                        return statement;
+                    }
+                },
+                Promise.resolve(initialContents)
+            );
+
+            await fs.writeFile(filePath, contents, "utf-8");
+        })
     );
 }

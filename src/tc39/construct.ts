@@ -60,7 +60,6 @@ export function constructTC39IteratorHelpers<T extends object>(that: unknown, op
       return;
     }
     prototype[name] = function iterableOperation(this: unknown, ...args: unknown[]): unknown {
-      const prototype = Object.getPrototypeOf(this);
       const fn = operation(...args);
       if (!isCallableOperation(fn)) throw new Error("Expected function return");
       if (!isOperationIterable(this)) throw new Error("Expected iterable this type");

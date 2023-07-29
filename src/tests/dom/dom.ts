@@ -1,5 +1,5 @@
 import { Push } from "@virtualstate/promise";
-import { applyTC39AsyncIteratorHelpers } from "../../tc39";
+import { applyTC39AsyncIteratorHelpers, TC39AsyncIterable } from "../../tc39";
 
 interface OnOptions {
   signal?: AbortSignal;
@@ -8,9 +8,17 @@ interface OnOptions {
 function on<K extends keyof HTMLElementEventMap>(this: EventTarget, type: K, options?: OnOptions) {
   return onHTMLEvent(this, type, options);
 }
+
+declare global {
+  interface EventTarget {
+    on<K extends keyof HTMLElementEventMap>(type: K, options?: OnOptions): TC39AsyncIterable<HTMLElementEventMap[K]>;
+  }
+}
+
 if (typeof window !== "undefined" && typeof HTMLElement !== "undefined") {
   Object.assign(HTMLElement.prototype, { on });
 }
+Object.assign(EventTarget.prototype, { on });
 
 function onHTMLEvent<K extends keyof HTMLElementEventMap>(target: EventTarget, type: K, options?: OnOptions) {
   return onEvent(target, type, options).filter(isMatching);
@@ -47,7 +55,7 @@ function onEvent(target: EventTarget, type: string, options?: OnOptions) {
     element.dispatchEvent(new Event("click"));
   });
 
-  for await (const event of onHTMLEvent(element, "click", { signal })) {
+  for await (const event of element.on("click", { signal })) {
     console.log({ event });
     controller.abort();
   }
@@ -81,7 +89,7 @@ function onEvent(target: EventTarget, type: string, options?: OnOptions) {
     }
   }, 10);
 
-  await onHTMLEvent(element, "click", { signal })
+  await element.on("click", { signal })
     .filter(isHTMLElementTarget)
     .filter(event => event.target.matches(".foo"))
     .map(({ clientX, clientY }) => ({ clientX, clientY }))
@@ -130,9 +138,8 @@ function onEvent(target: EventTarget, type: string, options?: OnOptions) {
     }
   );
 
-  await onHTMLEvent(element, "click", { signal })
+  await element.on("click", { signal })
     .forEach(console.log);
-
 
 }
 

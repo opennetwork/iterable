@@ -24,6 +24,10 @@ export interface TC39AsyncIteratorHelpers<T> {
   find(filterFn: FilterFn<T>): Promise<T | undefined>;
 }
 
+export interface TC39AsyncIterable<T> extends TC39AsyncIteratorHelpers<T>, AsyncIterable<T> {
+
+}
+
 export class TC39AsyncIteratorHelpers<T> extends createTC39IteratorHelpersConstructor(Async) implements TC39AsyncIterableHelpersObject<T> {
 
   constructor() {
@@ -36,6 +40,6 @@ export class TC39AsyncIteratorHelpers<T> extends createTC39IteratorHelpersConstr
 
 }
 
-export function applyTC39AsyncIteratorHelpers<T, Z extends AsyncIterable<T>>(that: Z): asserts that is Z & TC39AsyncIteratorHelpers<T> {
+export function applyTC39AsyncIteratorHelpers<T, Z extends AsyncIterable<T>>(that: Z): asserts that is Z & TC39AsyncIterable<T> {
   return constructTC39IteratorHelpers(that, Async);
 }
